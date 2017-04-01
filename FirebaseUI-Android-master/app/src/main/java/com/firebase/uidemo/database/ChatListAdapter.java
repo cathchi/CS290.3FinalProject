@@ -2,7 +2,6 @@ package com.firebase.uidemo.database;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,13 @@ import java.util.List;
  * Created by CathyChi on 3/30/17.
  */
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
+public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
 
     private List<String> mNames;
     private Context mContext;
     private RecyclerViewClickListener mRecyclerViewClickListener;
 
-    public ChatAdapter(Context context, List<String> names, RecyclerViewClickListener recyclerViewClickListener) {
+    public ChatListAdapter(Context context, List<String> names, RecyclerViewClickListener recyclerViewClickListener) {
         this.mNames = names;
         this.mContext = context;
         this.mRecyclerViewClickListener = recyclerViewClickListener;
