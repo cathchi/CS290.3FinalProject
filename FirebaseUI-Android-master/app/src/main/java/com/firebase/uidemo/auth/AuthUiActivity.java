@@ -49,7 +49,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class AuthUiActivity extends AppCompatActivity {
-    private static final String UNCHANGED_CONFIG_VALUE = "CHANGE-ME";
+    private static final String UNCHANGED_CONFIG_VALUE = "764329597060216";
     private static final String GOOGLE_TOS_URL = "https://www.google.com/policies/terms/";
     private static final String FIREBASE_TOS_URL = "https://firebase.google.com/terms/";
     private static final int RC_SIGN_IN = 100;
