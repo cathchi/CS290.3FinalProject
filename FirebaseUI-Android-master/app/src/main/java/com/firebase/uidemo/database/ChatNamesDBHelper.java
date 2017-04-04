@@ -18,8 +18,8 @@ public class ChatNamesDBHelper extends SQLiteOpenHelper {
                     ChatContract.ChatNames.TABLE_NAME + " (" +
                     ChatContract.ChatNames._ID + "INTEGER PRIMARY KEY" +
                     ChatContract.ChatNames.COLUMN_NAME_NAMES + " TEXT," +
-                    ChatContract.ChatNames.COLUMN_NAME_UID + " INT" +
-                    ChatContract.ChatNames.COLUMN_NAME_LASTCHAT + "INT)";
+                    ChatContract.ChatNames.COLUMN_NAME_UID + " STRING" +
+                    ChatContract.ChatNames.COLUMN_NAME_LASTCHAT + "LONG)";
 
     private static final String SQL_DELETE_CHATNAMES_TABLE =
             "DROP TABLE IF EXISTS " + ChatContract.ChatNames.TABLE_NAME;

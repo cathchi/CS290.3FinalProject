@@ -17,9 +17,11 @@ public class ChatHistoryDBHelper extends SQLiteOpenHelper {
             "CREATE TABLE " +
                     ChatContract.ChatHistory.TABLE_NAME + " (" +
                     ChatContract.ChatHistory._ID + "INTEGER PRIMARY KEY" +
-                    ChatContract.ChatHistory.COLUMN_NAME_UID + " INT," +
+                    ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID + "LONG" +
+                    ChatContract.ChatHistory.COLUMN_NAME_NAMES + "STRING" +
+                    ChatContract.ChatHistory.COLUMN_NAME_UID + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_MESSAGES + "TEXT," +
-                    ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP + " INT)";
+                    ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP + " LONG)";
 
     private static final String SQL_DELETE_CHATHISTORY_TABLE =
             "DROP TABLE IF EXISTS " + ChatContract.ChatHistory.TABLE_NAME;

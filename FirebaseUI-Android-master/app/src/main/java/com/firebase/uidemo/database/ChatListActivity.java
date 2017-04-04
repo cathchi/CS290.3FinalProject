@@ -1,6 +1,7 @@
 package com.firebase.uidemo.database;
 
-import android.database.Cursor;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
@@ -8,9 +9,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 
 import com.firebase.uidemo.R;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,58 +28,48 @@ import java.util.List;
 
 public class ChatListActivity extends AppCompatActivity implements RecyclerViewClickListener {
 
-    private List<String> mNames = new ArrayList<>();
-    private List<Integer> mUIDs;
+    private List<String> mDisplayNames = new ArrayList<>();
+    private List<String> mNames;
+    private List<String> mUIDs;
+    private List<String> mMessages;
+    private List<String> mMessageIDs;
+    private ChatListAdapter chatListAdapter;
     private SQLiteOpenHelper mDBHelper;
+    private DatabaseReference mChatRef;
+    private DatabaseReference mRef;
+
+    private static final String TAG = "ERROR";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        readDatabase();
-
-    }
-
-    public void initializeView () {
-        ChatListAdapter chatListAdapter = new ChatListAdapter(this, mNames, this);
+        chatListAdapter = new ChatListAdapter(this, mDisplayNames, this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.chats);
         recyclerView.setAdapter(chatListAdapter);
+        getDatabaseData();
     }
 
-    private void readDatabase() {
-        new AsyncTask<Object, Void, List<String>>() {
+
+    private void writeDatabase() {
+        new AsyncTask<List<String>, Void, Integer>() {
             @Override
-            protected List<String> doInBackground(Object... params) {
-                mDBHelper = new ChatNamesDBHelper(getApplicationContext());
-                SQLiteDatabase database = ChatListActivity.this.mDBHelper.getReadableDatabase();
-                String[] projection = {
-                        ChatContract.ChatNames._ID,
-                        ChatContract.ChatNames.COLUMN_NAME_NAMES,
-                        ChatContract.ChatNames.COLUMN_NAME_UID,
-                        ChatContract.ChatNames.COLUMN_NAME_LASTCHAT
-                };
-
-                String sortOrder = ChatContract.ChatNames.COLUMN_NAME_LASTCHAT + "DESC";
-
-                Cursor cursor = database.query(
-                        ChatContract.ChatNames.TABLE_NAME,
-                        projection, null, null, null, null, sortOrder);
-
-                while(cursor.moveToNext())
-
-                {
-                    mNames.add(cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatNames.COLUMN_NAME_NAMES)));
-                    mUIDs.add(cursor.getInt(cursor.getColumnIndexOrThrow(ChatContract.ChatNames.COLUMN_NAME_UID)));
+            protected Integer doInBackground(List<String>... params) {
+                if (mDBHelper == null) {
+                    mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
                 }
-                cursor.close();
-                return mNames;
+                SQLiteDatabase database = mDBHelper.getWritableDatabase();
+                ContentValues contentValues = new ContentValues();
+                for (int i = 0; i < mNames.size(); i++) {
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUIDs.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessages.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
+                }
+                int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
+                return count;
             }
-
-            @Override
-            protected void onPostExecute(List<String> strings) {
-                initializeView();
-            }
-        }.execute(new Object());
+        }.execute();
     }
 
     @Override
@@ -81,9 +78,41 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         super.onDestroy();
     }
 
+    private void getDatabaseData () {
+        mRef = FirebaseDatabase.getInstance().getReference();
+        mChatRef = mRef.child("chats");
+        mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    mMessageIDs.add(ds.getKey());
+                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getName())) {
+                        mDisplayNames.add(ds.getValue(Chat.class).getName());
+                    }
+                    mNames.add(ds.getValue(Chat.class).getName());
+                    chatListAdapter.notifyItemInserted(mDisplayNames.size()-1);
+                    mUIDs.add(ds.getValue(Chat.class).getUid());
+                    mMessages.add(ds.getValue(Chat.class).getMessage());
+                }
+                writeDatabase();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+    }
+
 
     @Override
     public void recyclerViewItemClicked(int position) {
+        String name = mDisplayNames.get(position);
+        String id = mUIDs.get(mNames.indexOf(name));
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("UID", id);
+        startActivity(intent);
 
     }
 }

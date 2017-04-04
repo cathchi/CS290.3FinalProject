@@ -14,6 +14,9 @@
 
 package com.firebase.uidemo.database;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -33,11 +36,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 public class ChatActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
@@ -54,7 +60,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private FirebaseRecyclerAdapter<Chat, ChatHolder> mAdapter;
     private TextView mEmptyListMessage;
 
-    private Calendar mCalendar;
+    private Long mDate;
+    private SQLiteOpenHelper mDBHelper;
+    private String mMessage;
+    private String mUID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,15 +78,19 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mEmptyListMessage = (TextView) findViewById(R.id.emptyTextView);
 
         mRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference ref = mRef.child("users");
+        // mChatRef = ref.child("chats");
         mChatRef = mRef.child("chats");
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String uid = mAuth.getCurrentUser().getUid();
-                String name = "User " + uid.substring(0, 6);
+                mUID = mAuth.getCurrentUser().getUid();
+                String name = "User " + mUID.substring(0, 6);
 
-                Chat chat = new Chat(name, mMessageEdit.getText().toString(), uid);
+                mMessage = mMessageEdit.getText().toString();
+
+                Chat chat = new Chat(name, mMessage, mUID);
                 mChatRef.push().setValue(chat, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError error, DatabaseReference reference) {
@@ -86,8 +99,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                         }
                     }
                 });
-                mCalendar = Calendar.getInstance();
+                Calendar calendar = Calendar.getInstance();
+                mDate = calendar.getTimeInMillis();
                 mMessageEdit.setText("");
+                storeToDatabase();
             }
         });
 
@@ -190,4 +205,22 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mSendButton.setEnabled(isSignedIn());
         mMessageEdit.setEnabled(isSignedIn());
     }
+
+    private void storeToDatabase() {
+
+        if (mDBHelper == null) {
+            mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
+        }
+        SQLiteDatabase database = mDBHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, database.insert(ChatContract.ChatHistory.TABLE_NAME, null, contentValues));
+        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessage);
+        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mDate);
+
+        String selection = ChatContract.ChatHistory.COLUMN_NAME_UID + " LIKE ?";
+        String[] selectionArgs = {mUID};
+        int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
+    }
+
+
 }

@@ -20,8 +20,10 @@ public final class ChatContract {
     public static class ChatHistory implements BaseColumns {
         public static final String TABLE_NAME = "chat_history";
         public static final String COLUMN_NAME_UID = "uid";
+        public static final String COLUMN_NAME_NAMES = "names";
         public static final String COLUMN_NAME_MESSAGES = "messages";
         public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
+        public static final String COLUMN_NAME_MESSAGEID = "messageid";
     }
 
 }
