@@ -202,6 +202,7 @@ public class AuthUiActivity extends AppCompatActivity {
         showSnackbar(R.string.unknown_response);
     }
 
+
     @MainThread
     private void handleSignInResponse(int resultCode, Intent data) {
         IdpResponse response = IdpResponse.fromResultIntent(data);
