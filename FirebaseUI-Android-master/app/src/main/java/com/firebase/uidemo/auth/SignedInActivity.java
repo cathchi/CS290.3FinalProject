@@ -25,6 +25,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,6 +41,11 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Iterator;
 
@@ -65,16 +71,22 @@ public class SignedInActivity extends AppCompatActivity {
 
     private IdpResponse mIdpResponse;
 
+    private DatabaseReference mRef;
+    private String mUid;
+    private FirebaseAuth mAuth;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
         if (currentUser == null) {
             startActivity(AuthUiActivity.createIntent(this));
             finish();
             return;
         }
+        mRef = FirebaseDatabase.getInstance().getReference();
 
         mIdpResponse = IdpResponse.fromResultIntent(getIntent());
 
@@ -82,6 +94,30 @@ public class SignedInActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         populateProfile();
         populateIdpToken();
+        mUid = currentUser.getUid();
+        final DatabaseReference mUser = mRef.child("users");
+        final User newUser = new User();
+        newUser.setEmail(mUserEmail.getText().toString());
+        newUser.setName(mUserDisplayName.getText().toString());
+        newUser.setUid(mUid);
+        newUser.setEmail(mUserEmail.getText().toString());
+        mUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.hasChild(mUid)){
+                    mUser.child(mUid).setValue(newUser);
+                    Log.d("SignedInActivity", "User is not contained");
+                }
+                else{
+                    Log.d("SignedInActivity", "User is contained");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @OnClick(R.id.sign_out)
