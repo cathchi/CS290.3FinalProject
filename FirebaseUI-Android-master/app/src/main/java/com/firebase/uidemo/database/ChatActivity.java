@@ -15,6 +15,7 @@
 package com.firebase.uidemo.database;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class ChatActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
     private static final String TAG = "RecyclerViewDemo";
@@ -52,18 +54,21 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
     private DatabaseReference mChatRef;
+    private DatabaseReference mMessageRef;
     private Button mSendButton;
     private EditText mMessageEdit;
 
     private RecyclerView mMessages;
     private LinearLayoutManager mManager;
-    private FirebaseRecyclerAdapter<Chat, ChatHolder> mAdapter;
+    private FirebaseRecyclerAdapter mAdapter;
     private TextView mEmptyListMessage;
 
     private Long mDate;
     private SQLiteOpenHelper mDBHelper;
     private String mMessage;
     private String mUID;
+    private List<Chat> mChats = new ArrayList<>();
+    private List<String> mNames = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +83,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mEmptyListMessage = (TextView) findViewById(R.id.emptyTextView);
 
         mRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = mRef.child("users");
+        //DatabaseReference ref = mRef.child("users");
         // mChatRef = ref.child("chats");
         mChatRef = mRef.child("chats");
 
@@ -90,7 +95,9 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
                 mMessage = mMessageEdit.getText().toString();
 
-                Chat chat = new Chat(name, mMessage, mUID);
+                Calendar calendar = Calendar.getInstance();
+                mDate = calendar.getTimeInMillis();
+                Chat chat = new Chat(name, mMessage, mUID, mDate);
                 mChatRef.push().setValue(chat, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError error, DatabaseReference reference) {
@@ -99,8 +106,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                         }
                     }
                 });
-                Calendar calendar = Calendar.getInstance();
-                mDate = calendar.getTimeInMillis();
+
                 mMessageEdit.setText("");
                 storeToDatabase();
             }
@@ -150,6 +156,12 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     private void attachRecyclerViewAdapter() {
+//        mChats.add(new Chat("Cathy", "hi", "1234"));
+//        mNames.add("Cathy");
+        //                new ChatAdapter(Chat.class, R.layout.message, ChatAdapter.ChatHolder.class,
+//                mNames, mChats, mAuth.getCurrentUser().getUid(), mEmptyListMessage);
+        Intent i = new Intent();
+        String value = i.getStringExtra("UID");
         Query lastFifty = mChatRef.limitToLast(50);
         mAdapter = new FirebaseRecyclerAdapter<Chat, ChatHolder>(
                 Chat.class, R.layout.message, ChatHolder.class, lastFifty) {
