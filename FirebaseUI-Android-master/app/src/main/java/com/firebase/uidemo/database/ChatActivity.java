@@ -83,9 +83,12 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mEmptyListMessage = (TextView) findViewById(R.id.emptyTextView);
 
         mRef = FirebaseDatabase.getInstance().getReference();
-        //DatabaseReference ref = mRef.child("users");
-        // mChatRef = ref.child("chats");
-        mChatRef = mRef.child("chats");
+        DatabaseReference ref = mRef.child("users");
+//        Intent i = new Intent();
+//        String value = i.getStringExtra("UID");
+        mMessageRef = ref.child(mAuth.getCurrentUser().getUid());
+        mChatRef = mMessageRef.child("chats");
+        //mChatRef = mRef.child("chats");
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,8 +163,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 //        mNames.add("Cathy");
         //                new ChatAdapter(Chat.class, R.layout.message, ChatAdapter.ChatHolder.class,
 //                mNames, mChats, mAuth.getCurrentUser().getUid(), mEmptyListMessage);
-        Intent i = new Intent();
-        String value = i.getStringExtra("UID");
+
         Query lastFifty = mChatRef.limitToLast(50);
         mAdapter = new FirebaseRecyclerAdapter<Chat, ChatHolder>(
                 Chat.class, R.layout.message, ChatHolder.class, lastFifty) {
