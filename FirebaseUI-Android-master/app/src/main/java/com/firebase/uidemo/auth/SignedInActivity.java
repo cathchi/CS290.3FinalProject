@@ -95,7 +95,7 @@ public class SignedInActivity extends AppCompatActivity {
         populateProfile();
         populateIdpToken();
         mUid = currentUser.getUid();
-        final DatabaseReference mUser = mRef.child(mUid);
+        final DatabaseReference mUser = mRef.child("users");
         final User newUser = new User();
         newUser.setEmail(mUserEmail.getText().toString());
         newUser.setName(mUserDisplayName.getText().toString());
@@ -104,8 +104,8 @@ public class SignedInActivity extends AppCompatActivity {
         mUser.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.hasChildren()){
-                    mUser.setValue(newUser);
+                if(!dataSnapshot.hasChild(mUid)){
+                    mUser.child(mUid).setValue(newUser);
                     Log.d("SignedInActivity", "User is not contained");
                 }
                 else{
