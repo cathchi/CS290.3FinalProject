@@ -34,6 +34,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.database.ChatActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -243,5 +244,16 @@ public class SignedInActivity extends AppCompatActivity {
         Intent in = IdpResponse.getIntent(idpResponse);
         in.setClass(context, SignedInActivity.class);
         return in;
+    }
+
+    @OnClick(R.id.to_chat)
+    public void goToChat(){
+        startActivity(new Intent(getApplicationContext(), ChatActivity.class));
+        finish();
+    }
+
+    @OnClick(R.id.to_home)
+    public void goToHome(){
+        finish();
     }
 }
