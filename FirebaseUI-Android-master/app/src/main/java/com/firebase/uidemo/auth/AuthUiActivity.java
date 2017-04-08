@@ -398,7 +398,7 @@ public class AuthUiActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        finish();
+        //finish();
         super.onBackPressed();
     }
 
