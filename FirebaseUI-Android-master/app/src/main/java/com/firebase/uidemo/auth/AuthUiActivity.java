@@ -39,6 +39,7 @@ import com.firebase.ui.auth.ResultCodes;
 import com.firebase.uidemo.R;
 import com.google.android.gms.common.Scopes;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +53,7 @@ public class AuthUiActivity extends AppCompatActivity {
     private static final String UNCHANGED_CONFIG_VALUE = "CHANGE-ME";
     private static final String GOOGLE_TOS_URL = "https://www.google.com/policies/terms/";
     private static final String FIREBASE_TOS_URL = "https://firebase.google.com/terms/";
+
     private static final int RC_SIGN_IN = 100;
 
     @BindView(R.id.default_theme)
@@ -174,6 +176,19 @@ public class AuthUiActivity extends AppCompatActivity {
 
         if (!isGoogleConfigured() || !isFacebookConfigured() || !isTwitterConfigured()) {
             showSnackbar(R.string.configuration_required);
+        }
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if(auth.getCurrentUser() == null) {
+            startActivityForResult(
+                    AuthUI.getInstance().createSignInIntentBuilder()
+                            .setTheme(getSelectedTheme())
+                            .setLogo(getSelectedLogo())
+                            .setProviders(getSelectedProviders())
+                            .setTosUrl(getSelectedTosUrl())
+                            .setIsSmartLockEnabled(mEnableSmartLock.isChecked())
+                            .setAllowNewEmailAccounts(mAllowNewEmailAccounts.isChecked())
+                            .build(),
+                    RC_SIGN_IN);
         }
     }
 
@@ -307,6 +322,21 @@ public class AuthUiActivity extends AppCompatActivity {
     }
 
     @MainThread
+    private List<IdpConfig> getProviders(){
+        List<IdpConfig> selectedProviders = new ArrayList<>();
+        selectedProviders.add(new IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build());
+        selectedProviders.add(
+                new IdpConfig.Builder(AuthUI.FACEBOOK_PROVIDER)
+                        .setPermissions(getFacebookPermissions())
+                        .build());
+        selectedProviders.add(
+                new IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER)
+                        .setPermissions(getGooglePermissions())
+                        .build());
+        return selectedProviders;
+    }
+
+    @MainThread
     private String getSelectedTosUrl() {
         if (mUseGoogleTos.isChecked()) {
             return GOOGLE_TOS_URL;
@@ -364,6 +394,12 @@ public class AuthUiActivity extends AppCompatActivity {
             result.add(Scopes.DRIVE_FILE);
         }
         return result;
+    }
+
+    @Override
+    public void onBackPressed(){
+        finish();
+        super.onBackPressed();
     }
 
     public static Intent createIntent(Context context) {
