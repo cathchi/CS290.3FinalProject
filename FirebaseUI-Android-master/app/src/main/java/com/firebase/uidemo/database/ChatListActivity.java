@@ -80,7 +80,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 
     private void getDatabaseData () {
         mRef = FirebaseDatabase.getInstance().getReference();
-        mChatRef = mRef.child("chats");
+        mChatRef = mRef.child().child("chats");
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
