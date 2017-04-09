@@ -67,6 +67,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private SQLiteOpenHelper mDBHelper;
     private String mMessage;
     private String mUID;
+    private Chat mChat;
     private List<Chat> mChats = new ArrayList<>();
     private List<String> mNames = new ArrayList<>();
 
@@ -84,11 +85,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         mRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference ref = mRef.child("users");
-//        Intent i = new Intent();
-//        String value = i.getStringExtra("UID");
         mMessageRef = ref.child(mAuth.getCurrentUser().getUid());
         mChatRef = mMessageRef.child("chats");
-        //mChatRef = mRef.child("chats");
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,8 +98,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
                 Calendar calendar = Calendar.getInstance();
                 mDate = calendar.getTimeInMillis();
-                Chat chat = new Chat(name, mMessage, mUID, mDate);
-                mChatRef.push().setValue(chat, new DatabaseReference.CompletionListener() {
+                mChat = new Chat(name, mMessage, mUID, mDate);
+                mChatRef.push().setValue(mChat, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError error, DatabaseReference reference) {
                         if (error != null) {
@@ -227,12 +225,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         }
         SQLiteDatabase database = mDBHelper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, database.insert(ChatContract.ChatHistory.TABLE_NAME, null, contentValues));
+        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mChat.getName());
         contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessage);
         contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mDate);
-
-        String selection = ChatContract.ChatHistory.COLUMN_NAME_UID + " LIKE ?";
-        String[] selectionArgs = {mUID};
+        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUID);
         int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
     }
 
