@@ -1,5 +1,6 @@
 package com.firebase.uidemo.database;
 
+import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RotateDrawable;
@@ -7,15 +8,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.uidemo.R;
-import com.google.firebase.database.Query;
 
 import java.util.List;
 
@@ -23,39 +23,41 @@ import java.util.List;
  * Created by CathyChi on 4/4/17.
  */
 
-public class ChatAdapter extends FirebaseRecyclerAdapter<Chat, ChatAdapter.ChatHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
 
     private List<String> mNames;
     private List<Chat> mChats;
     private String mUID;
     private TextView mEmptyListMessage;
+    private Context mContext;
 
-    public ChatAdapter(Class modelClass, int modelLayout, Class viewHolderClass,
-                       List<String> names, List<Chat> chats, String uid, TextView emptyListMessage){
-        super(modelClass, modelLayout, viewHolderClass, null);
-        this.mNames = names;
+    public ChatAdapter(Context context, List<Chat> chats, String uid) {
         this.mChats = chats;
+        this.mContext = context;
         this.mUID = uid;
-        this.mEmptyListMessage = emptyListMessage;
+    }
+
+
+    @Override
+    public ChatAdapter.ChatHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        View itemView = inflater.inflate(R.layout.message, parent, false);
+        ChatHolder chatHolder = new ChatHolder(itemView);
+        return null;
     }
 
     @Override
-    protected void onDataChanged() {
-        // If there are no chat messages, show a view that invites the user to add a message.
-        mEmptyListMessage.setVisibility(getItemCount() == 0 ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    protected void populateViewHolder(ChatHolder viewHolder, Chat chat, int position) {
-        viewHolder.setName(chat.getName());
-        viewHolder.setText(chat.getMessage());
+    public void onBindViewHolder(ChatAdapter.ChatHolder holder, int position) {
+        Chat chat = mChats.get(position);
+        holder.setName(chat.getName());
+        holder.setText(chat.getMessage());
 
         if (mUID != null && chat.getUid().equals(mUID)) {
-            viewHolder.setIsSender(true);
+            holder.setIsSender(true);
+        } else {
+            holder.setIsSender(false);
         }
-        else {
-            viewHolder.setIsSender(false);
-        }
+
     }
 
     @Override

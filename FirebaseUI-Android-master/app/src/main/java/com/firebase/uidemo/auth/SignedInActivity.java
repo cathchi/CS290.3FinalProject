@@ -249,7 +249,7 @@ public class SignedInActivity extends AppCompatActivity {
     @OnClick(R.id.to_chat)
     public void goToChat(){
         Intent mIntent = new Intent(getApplicationContext(), ChatActivity.class);
-        mIntent.putExtra("uid", mUid);
+//        mIntent.putExtra("uid", mUid);
         startActivity(mIntent);
         finish();
     }

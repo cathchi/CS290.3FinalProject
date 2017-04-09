@@ -25,6 +25,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -62,6 +63,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private LinearLayoutManager mManager;
     private FirebaseRecyclerAdapter mAdapter;
     private TextView mEmptyListMessage;
+    private ChatHolder mChatHolder;
 
     private Long mDate;
     private SQLiteOpenHelper mDBHelper;
@@ -70,11 +72,14 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private Chat mChat;
     private List<Chat> mChats = new ArrayList<>();
     private List<String> mNames = new ArrayList<>();
+    private String mReceiverUID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        mReceiverUID = getIntent().getStringExtra("UID");
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
