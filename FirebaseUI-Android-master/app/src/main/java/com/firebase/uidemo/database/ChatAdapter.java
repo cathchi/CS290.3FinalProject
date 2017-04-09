@@ -43,7 +43,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View itemView = inflater.inflate(R.layout.message, parent, false);
         ChatHolder chatHolder = new ChatHolder(itemView);
-        return null;
+        return chatHolder;
     }
 
     @Override

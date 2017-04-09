@@ -56,12 +56,13 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private DatabaseReference mRef;
     private DatabaseReference mChatRef;
     private DatabaseReference mMessageRef;
+    private DatabaseReference mReceiverChatRef;
     private Button mSendButton;
     private EditText mMessageEdit;
 
     private RecyclerView mMessages;
     private LinearLayoutManager mManager;
-    private FirebaseRecyclerAdapter mAdapter;
+    private ChatAdapter mAdapter;
     private TextView mEmptyListMessage;
     private ChatHolder mChatHolder;
 
@@ -91,6 +92,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference ref = mRef.child("users");
         mMessageRef = ref.child(mAuth.getCurrentUser().getUid());
+        mReceiverChatRef = ref.child(mReceiverUID).child("chats");
         mChatRef = mMessageRef.child("chats");
 
         mSendButton.setOnClickListener(new View.OnClickListener() {
@@ -112,8 +114,18 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                         }
                     }
                 });
-
                 mMessageEdit.setText("");
+
+                mReceiverChatRef.push().setValue(mChat, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError error, DatabaseReference reference) {
+                        if (error != null) {
+                            Log.e(TAG, "Failed to write message", error.toException());
+                        }
+                    }
+                });
+
+
                 storeToDatabase();
             }
         });
@@ -144,7 +156,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     public void onStop() {
         super.onStop();
         if (mAdapter != null) {
-            mAdapter.cleanup();
+//            mAdapter.cleanup();
         }
     }
 
@@ -162,12 +174,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     }
 
     private void attachRecyclerViewAdapter() {
-//        mChats.add(new Chat("Cathy", "hi", "1234"));
-//        mNames.add("Cathy");
-        //                new ChatAdapter(Chat.class, R.layout.message, ChatAdapter.ChatHolder.class,
-//                mNames, mChats, mAuth.getCurrentUser().getUid(), mEmptyListMessage);
 
-        Query lastFifty = mChatRef.limitToLast(50);
+        /*Query lastFifty = mChatRef.limitToLast(50);
         mAdapter = new FirebaseRecyclerAdapter<Chat, ChatHolder>(
                 Chat.class, R.layout.message, ChatHolder.class, lastFifty) {
             @Override
@@ -196,9 +204,13 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 mManager.smoothScrollToPosition(mMessages, null, mAdapter.getItemCount());
             }
-        });
+        });*/
 
-        mMessages.setAdapter(mAdapter);
+        mAdapter = new ChatAdapter(getApplicationContext(), mChats, mUID);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.messagesList);
+        recyclerView.setAdapter(mAdapter);
+
+        //mMessages.setAdapter(mAdapter);
     }
 
     private void signInAnonymously() {

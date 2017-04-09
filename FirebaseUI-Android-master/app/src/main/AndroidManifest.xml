@@ -25,10 +25,14 @@
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts"/>
         </activity>
-
+        <!-- ChatList -->
+        <activity android:name=".database.ChatListActivity"
+            android:parentActivityName=".auth.SignedInActivity"
+            android:label="ChatList Activity"></activity>
         <!-- Chat demo -->
         <activity
             android:name=".database.ChatActivity"
+            android:parentActivityName=".database.ChatListActivity"
             android:label="@string/name_chat"/>
 
         <!-- Auth UI demo -->
