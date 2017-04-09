@@ -42,7 +42,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
     public ChatAdapter.ChatHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View itemView = inflater.inflate(R.layout.message, parent, false);
-        ChatHolder chatHolder = new ChatHolder(itemView);
+        ChatAdapter.ChatHolder chatHolder = new ChatAdapter.ChatHolder(itemView);
         return chatHolder;
     }
 
@@ -65,7 +65,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
         return mChats.size();
     }
 
-    public class ChatHolder extends RecyclerView.ViewHolder {
+    public static class ChatHolder extends RecyclerView.ViewHolder {
         private final TextView mNameField;
         private final TextView mTextField;
         private final FrameLayout mLeftArrow;

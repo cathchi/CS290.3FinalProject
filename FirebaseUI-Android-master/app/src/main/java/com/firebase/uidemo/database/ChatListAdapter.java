@@ -32,12 +32,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(mContext);
         View itemView = layoutInflater.inflate(R.layout.chat, parent, false);
-        ViewHolder viewHolder = new ViewHolder(itemView);
+        ChatListAdapter.ViewHolder viewHolder = new ChatListAdapter.ViewHolder(itemView);
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ChatListAdapter.ViewHolder holder, int position) {
         String name = mNames.get(position);
         holder.textView.setText(name);
         final int p = position;

@@ -45,10 +45,11 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatlist);
         //Log.d("CATHYCHIUID", getIntent().getStringExtra("uid"));
-        chatListAdapter = new ChatListAdapter(getApplicationContext(), mDisplayNames, this);
+        mDisplayNames.add("Cathy");
+        chatListAdapter = new ChatListAdapter(this, mDisplayNames, this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.chats);
         recyclerView.setAdapter(chatListAdapter);
-        getDatabaseData();
+        //getDatabaseData();
     }
 
 
@@ -86,12 +87,13 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    Log.d("HI", ds.getKey());
                     mMessageIDs.add(ds.getKey());
                     if (!mDisplayNames.contains(ds.getValue(Chat.class).getName())) {
                         mDisplayNames.add(ds.getValue(Chat.class).getName());
                     }
                     mNames.add(ds.getValue(Chat.class).getName());
-                    chatListAdapter.notifyItemInserted(mDisplayNames.size()-1);
+                    chatListAdapter.notifyItemInserted(0);
                     mUIDs.add(ds.getValue(Chat.class).getUid());
                     mMessages.add(ds.getValue(Chat.class).getMessage());
                 }
