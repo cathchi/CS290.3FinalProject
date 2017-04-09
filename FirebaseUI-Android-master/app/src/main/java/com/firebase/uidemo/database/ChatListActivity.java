@@ -29,10 +29,10 @@ import java.util.List;
 public class ChatListActivity extends AppCompatActivity implements RecyclerViewClickListener {
 
     private List<String> mDisplayNames = new ArrayList<>();
-    private List<String> mNames;
-    private List<String> mUIDs;
-    private List<String> mMessages;
-    private List<String> mMessageIDs;
+    private List<String> mNames = new ArrayList<>();
+    private List<String> mUIDs = new ArrayList<>();
+    private List<String> mMessages = new ArrayList<>();
+    private List<String> mMessageIDs = new ArrayList<>();
     private ChatListAdapter chatListAdapter;
     private SQLiteOpenHelper mDBHelper;
     private DatabaseReference mChatRef;
@@ -43,8 +43,9 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
-        chatListAdapter = new ChatListAdapter(this, mDisplayNames, this);
+        setContentView(R.layout.activity_chatlist);
+        //Log.d("CATHYCHIUID", getIntent().getStringExtra("uid"));
+        chatListAdapter = new ChatListAdapter(getApplicationContext(), mDisplayNames, this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.chats);
         recyclerView.setAdapter(chatListAdapter);
         getDatabaseData();
@@ -80,7 +81,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 
     private void getDatabaseData () {
         mRef = FirebaseDatabase.getInstance().getReference();
-        mChatRef = mRef.child().child("chats");
+        mChatRef = mRef.child("users").child(getIntent().getStringExtra("uid")).child("chats");
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -94,7 +95,9 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     mUIDs.add(ds.getValue(Chat.class).getUid());
                     mMessages.add(ds.getValue(Chat.class).getMessage());
                 }
-                writeDatabase();
+                if (!mNames.isEmpty()) {
+                    writeDatabase();
+                }
 
             }
 
