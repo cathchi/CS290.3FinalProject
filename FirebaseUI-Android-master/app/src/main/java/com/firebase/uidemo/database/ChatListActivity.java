@@ -44,12 +44,10 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatlist);
-        //Log.d("CATHYCHIUID", getIntent().getStringExtra("uid"));
-        mDisplayNames.add("Cathy");
         chatListAdapter = new ChatListAdapter(this, mDisplayNames, this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.chats);
         recyclerView.setAdapter(chatListAdapter);
-        //getDatabaseData();
+        getDatabaseData();
     }
 
 
