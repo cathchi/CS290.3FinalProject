@@ -16,7 +16,7 @@ public class ChatHistoryDBHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_CHATHISTORY_TABLE =
             "CREATE TABLE " +
                     ChatContract.ChatHistory.TABLE_NAME + " (" +
-                    ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID + " INTEGER PRIMARY KEY," +
+                    ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID + " STRING PRIMARY KEY UNIQUE," +
                     ChatContract.ChatHistory.COLUMN_NAME_NAMES + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_UID + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_MESSAGES + " TEXT," +

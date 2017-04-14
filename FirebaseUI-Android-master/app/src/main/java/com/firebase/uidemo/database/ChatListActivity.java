@@ -2,6 +2,7 @@ package com.firebase.uidemo.database;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
@@ -33,6 +34,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     private List<String> mUIDs = new ArrayList<>();
     private List<String> mMessages = new ArrayList<>();
     private List<String> mMessageIDs = new ArrayList<>();
+    private List<Long> mTimeStamps = new ArrayList<>();
     private ChatListAdapter chatListAdapter;
     private SQLiteOpenHelper mDBHelper;
     private DatabaseReference mChatRef;
@@ -44,6 +46,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatlist);
+        //mDisplayNames.add("jmuFR6aaVaYj8enOr1bO9cmCxoZ2");
         chatListAdapter = new ChatListAdapter(this, mDisplayNames, this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.chats);
         recyclerView.setAdapter(chatListAdapter);
@@ -52,22 +55,34 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 
 
     private void writeDatabase() {
-        new AsyncTask<List<String>, Void, Integer>() {
+        new AsyncTask<List<String>, Void, Long>() {
             @Override
-            protected Integer doInBackground(List<String>... params) {
+            protected Long doInBackground(List<String>... params) {
                 if (mDBHelper == null) {
                     mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
                 }
                 SQLiteDatabase database = mDBHelper.getWritableDatabase();
                 ContentValues contentValues = new ContentValues();
+                long id = 0;
                 for (int i = 0; i < mNames.size(); i++) {
+
+                    Log.d("UID", mUIDs.get(i));
+                    Log.d("UID", mNames.get(i));
+                    Log.d("MESSAGES", mMessages.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessages.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mTimeStamps.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
+                    try {
+                        id += database.insertOrThrow(ChatContract.ChatHistory.TABLE_NAME, null, contentValues);
+                    } catch (SQLException e){
+                        e.printStackTrace();
+                    }
                 }
-                int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
-                return count;
+//                int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
+                Log.d("COUNT", id+"");
+                return id;
             }
         }.execute();
     }
@@ -85,15 +100,21 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    Log.d("HI", ds.getKey());
                     mMessageIDs.add(ds.getKey());
-                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getName())) {
+                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getName())
+                            && !ds.getValue(Chat.class).getUid().equals(getIntent().getStringExtra("uid"))) {
                         mDisplayNames.add(ds.getValue(Chat.class).getName());
                     }
                     mNames.add(ds.getValue(Chat.class).getName());
-                    chatListAdapter.notifyItemInserted(0);
+                    chatListAdapter.notifyItemInserted(mDisplayNames.size()-1);
                     mUIDs.add(ds.getValue(Chat.class).getUid());
                     mMessages.add(ds.getValue(Chat.class).getMessage());
+                    mTimeStamps.add(ds.getValue(Chat.class).getTimeStamp());
+
+//                    Log.d("MESSAGE ID", ds.getKey());
+//                    Log.d("NAMES", ds.getValue(Chat.class).getName());
+//                    Log.d("UID", ds.getValue(Chat.class).getUid());
+//                    Log.d("MESSAGES", ds.getValue(Chat.class).getMessage());
                 }
                 if (!mNames.isEmpty()) {
                     writeDatabase();
@@ -113,6 +134,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     public void recyclerViewItemClicked(int position) {
         String name = mDisplayNames.get(position);
         String id = mUIDs.get(mNames.indexOf(name));
+        //String id = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UID", id);
         startActivity(intent);

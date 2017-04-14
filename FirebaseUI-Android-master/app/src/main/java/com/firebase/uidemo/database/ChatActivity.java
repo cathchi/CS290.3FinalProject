@@ -16,6 +16,7 @@ package com.firebase.uidemo.database;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
@@ -79,9 +80,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        //Log.d("MESSAGE", mChats.get(0).getMessage());
         mReceiverUID = getIntent().getStringExtra("UID");
-
+        mReceiverUID = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
+        readFromDatabase();
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
 
@@ -249,5 +251,41 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
     }
 
+
+    private void readFromDatabase() {
+        ChatActivity.this.mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
+
+        SQLiteDatabase db = ChatActivity.this.mDBHelper.getReadableDatabase();
+
+        String[] projection = {
+                "*"
+        };
+
+        String selection = ChatContract.ChatHistory.COLUMN_NAME_UID + " = ?";
+        String[] selectionArgs = { mReceiverUID };
+
+        String sortOrder = ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP + " DESC";
+
+        Cursor cursor = db.query(
+                ChatContract.ChatHistory.TABLE_NAME,
+                projection,
+                null,
+                null,
+                null,
+                null,
+                sortOrder
+        );
+
+        while (cursor.moveToNext()) {
+            mChats.add(new Chat(
+                    cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_NAMES)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_UID)),
+                    cursor.getLong(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP))
+            ));
+        }
+        Log.d("EXECUTED", "DONE");
+        cursor.close();
+    }
 
 }
