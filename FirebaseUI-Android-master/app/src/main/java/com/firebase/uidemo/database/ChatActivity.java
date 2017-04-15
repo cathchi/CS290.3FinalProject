@@ -65,7 +65,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private LinearLayoutManager mManager;
     private ChatAdapter mAdapter;
     private TextView mEmptyListMessage;
-    private ChatHolder mChatHolder;
+    private ChatAdapter.ChatHolder mChatHolder;
 
     private Long mDate;
     private SQLiteOpenHelper mDBHelper;
@@ -82,10 +82,12 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         setContentView(R.layout.activity_chat);
         //Log.d("MESSAGE", mChats.get(0).getMessage());
         mReceiverUID = getIntent().getStringExtra("UID");
-        mReceiverUID = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
         readFromDatabase();
+
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
+
+        mUID = mAuth.getCurrentUser().getUid();
 
         mSendButton = (Button) findViewById(R.id.sendButton);
         mMessageEdit = (EditText) findViewById(R.id.messageEdit);
@@ -100,7 +102,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mUID = mAuth.getCurrentUser().getUid();
                 String name = "User " + mUID.substring(0, 6);
 
                 mMessage = mMessageEdit.getText().toString();
@@ -128,7 +129,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 });
 
 
-                storeToDatabase();
+                //storeToDatabase();
             }
         });
 
@@ -157,9 +158,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     @Override
     public void onStop() {
         super.onStop();
-        if (mAdapter != null) {
-//            mAdapter.cleanup();
-        }
     }
 
     @Override
@@ -208,7 +206,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             }
         });*/
 
-        mAdapter = new ChatAdapter(getApplicationContext(), mChats, mUID);
+        mAdapter = new ChatAdapter(this, mChats, mUID);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.messagesList);
         recyclerView.setAdapter(mAdapter);
 
@@ -237,19 +235,19 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessageEdit.setEnabled(isSignedIn());
     }
 
-    private void storeToDatabase() {
-
-        if (mDBHelper == null) {
-            mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
-        }
-        SQLiteDatabase database = mDBHelper.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mChat.getName());
-        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessage);
-        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mDate);
-        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUID);
-        int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
-    }
+//    private void storeToDatabase() {
+//
+//        if (mDBHelper == null) {
+//            mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
+//        }
+//        SQLiteDatabase database = mDBHelper.getWritableDatabase();
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mChat.getName());
+//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessage);
+//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mDate);
+//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUID);
+//        int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
+//    }
 
 
     private void readFromDatabase() {
@@ -258,7 +256,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         SQLiteDatabase db = ChatActivity.this.mDBHelper.getReadableDatabase();
 
         String[] projection = {
-                "*"
+               "*"
         };
 
         String selection = ChatContract.ChatHistory.COLUMN_NAME_UID + " = ?";
@@ -285,6 +283,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             ));
         }
         Log.d("EXECUTED", "DONE");
+        db.close();
         cursor.close();
     }
 

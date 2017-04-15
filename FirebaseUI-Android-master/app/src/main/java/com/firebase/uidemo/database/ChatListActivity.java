@@ -65,23 +65,24 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                 ContentValues contentValues = new ContentValues();
                 long id = 0;
                 for (int i = 0; i < mNames.size(); i++) {
-
-                    Log.d("UID", mUIDs.get(i));
-                    Log.d("UID", mNames.get(i));
-                    Log.d("MESSAGES", mMessages.get(i));
+                    Log.d("PRINTING EVERYTHING", mUIDs.get(i));
+                    Log.d("PRINTING EVERYTHING", mNames.get(i));
+                    Log.d("PRINTING EVERYTHING", mMessages.get(i));
+                    Log.d("PRINTING EVERYTHING", mMessageIDs.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessages.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mTimeStamps.get(i));
-                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
                     try {
                         id += database.insertOrThrow(ChatContract.ChatHistory.TABLE_NAME, null, contentValues);
                     } catch (SQLException e){
                         e.printStackTrace();
                     }
                 }
+                mDBHelper.close();
 //                int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
-                Log.d("COUNT", id+"");
+                Log.d("COUNTING ID", id+"");
                 return id;
             }
         }.execute();
@@ -105,8 +106,8 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                             && !ds.getValue(Chat.class).getUid().equals(getIntent().getStringExtra("uid"))) {
                         mDisplayNames.add(ds.getValue(Chat.class).getName());
                     }
-                    mNames.add(ds.getValue(Chat.class).getName());
                     chatListAdapter.notifyItemInserted(mDisplayNames.size()-1);
+                    mNames.add(ds.getValue(Chat.class).getName());
                     mUIDs.add(ds.getValue(Chat.class).getUid());
                     mMessages.add(ds.getValue(Chat.class).getMessage());
                     mTimeStamps.add(ds.getValue(Chat.class).getTimeStamp());
