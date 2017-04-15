@@ -4,10 +4,12 @@
     <string name="name_chat">ChatActivity</string>
     <string name="name_auth_ui">Auth UI demo</string>
     <string name="name_image">Storage Image Demo</string>
+    <string name="name_todolist">To-Do List</string>
 
     <string name="desc_chat">Demonstrates using a FirebaseRecyclerAdapter to load data from Firebase Database into a RecyclerView for a basic chat app.</string>
     <string name="desc_auth_ui">Demonstrates the Firebase Auth UI flow, with customization options.</string>
     <string name="desc_image">Demonstrates displaying an image from Cloud Storage using Glide.</string>
+    <string name="desc_todolist">View your to-do lists.</string>
 
     <!-- strings for Auth UI demo activities -->
     <eat-comment/>
