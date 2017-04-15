@@ -68,7 +68,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private RecyclerView mMessages;
     private LinearLayoutManager mManager;
     private ChatAdapter mAdapter;
-    private ChatAdapter.ChatHolder mChatHolder;
 
     private Long mDate;
     private SQLiteOpenHelper mDBHelper;
@@ -76,10 +75,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private String mUID;
     private Chat mChat;
     private List<Chat> mChats = new ArrayList<>();
-    private List<String> mNames = new ArrayList<>();
     private String mReceiverUID;
 
-    private boolean mInitallyLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,7 +152,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                     Collections.sort(mChats);
                     mAdapter.notifyItemInserted(mChats.size() - 1);
                 }
-                Log.d("HOW MANY TIMES", "HEREAGAIN");
             }
 
             @Override

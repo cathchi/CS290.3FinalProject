@@ -39,7 +39,7 @@ import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.ResultCodes;
 import com.firebase.uidemo.auth.AuthUiActivity;
 import com.firebase.uidemo.auth.SignedInActivity;
-import com.firebase.uidemo.database.ChatActivity;
+import com.firebase.uidemo.database.ChatListActivity;
 import com.firebase.uidemo.storage.ImageActivity;
 import com.firebase.uidemo.todolist.ListsActivity;
 import com.firebase.uidemo.todolist.ToDoListActivity;
@@ -93,7 +93,7 @@ public class ChooserActivity extends AppCompatActivity {
 
     private static class ActivityChooserAdapter extends RecyclerView.Adapter<ActivityStarterHolder> {
         private static final Class[] CLASSES = new Class[]{
-                ChatActivity.class,
+                ChatListActivity.class,
                 AuthUiActivity.class,
                 ImageActivity.class,
                 ListsActivity.class
