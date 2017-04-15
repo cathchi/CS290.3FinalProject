@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.firebase.uidemo.R;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -96,14 +97,15 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 
     private void getDatabaseData () {
         mRef = FirebaseDatabase.getInstance().getReference();
-        mChatRef = mRef.child("users").child(getIntent().getStringExtra("uid")).child("chats");
+        mChatRef = mRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("chats");
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     mMessageIDs.add(ds.getKey());
                     if (!mDisplayNames.contains(ds.getValue(Chat.class).getName())
-                            && !ds.getValue(Chat.class).getUid().equals(getIntent().getStringExtra("uid"))) {
+                            && !ds.getValue(Chat.class).getUid()
+                            .equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         mDisplayNames.add(ds.getValue(Chat.class).getName());
                     }
                     chatListAdapter.notifyItemInserted(mDisplayNames.size()-1);

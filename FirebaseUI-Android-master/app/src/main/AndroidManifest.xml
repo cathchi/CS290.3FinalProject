@@ -27,7 +27,6 @@
         </activity>
         <!-- ChatList -->
         <activity android:name=".database.ChatListActivity"
-            android:parentActivityName=".auth.SignedInActivity"
             android:label="ChatList Activity"></activity>
         <!-- Chat demo -->
         <activity
