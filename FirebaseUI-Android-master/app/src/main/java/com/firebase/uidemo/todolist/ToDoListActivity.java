@@ -41,7 +41,7 @@ public class ToDoListActivity extends AppCompatActivity {
 
         // Create a new Adapter
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1);
+                android.R.layout.simple_list_item_checked, android.R.id.text1);
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
@@ -72,7 +72,8 @@ public class ToDoListActivity extends AppCompatActivity {
             // This function is called each time a child item is removed.
             public void onChildRemoved(DataSnapshot dataSnapshot){
                 String value = dataSnapshot.getValue(String.class);
-                adapter.remove(value);
+                listView.setSelection(adapter.getPosition(value));
+                //adapter.remove(value);
             }
 
             // The following functions are also required in ChildEventListener implementations.
