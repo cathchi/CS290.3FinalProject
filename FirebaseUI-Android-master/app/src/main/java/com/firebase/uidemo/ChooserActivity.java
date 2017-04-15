@@ -41,6 +41,8 @@ import com.firebase.uidemo.auth.AuthUiActivity;
 import com.firebase.uidemo.auth.SignedInActivity;
 import com.firebase.uidemo.database.ChatActivity;
 import com.firebase.uidemo.storage.ImageActivity;
+import com.firebase.uidemo.todolist.ListsActivity;
+import com.firebase.uidemo.todolist.ToDoListActivity;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -94,18 +96,21 @@ public class ChooserActivity extends AppCompatActivity {
                 ChatActivity.class,
                 AuthUiActivity.class,
                 ImageActivity.class,
+                ListsActivity.class
         };
 
         private static final int[] DESCRIPTION_NAMES = new int[]{
                 R.string.name_chat,
                 R.string.name_auth_ui,
-                R.string.name_image
+                R.string.name_image,
+                R.string.name_todolist
         };
 
         private static final int[] DESCRIPTION_IDS = new int[]{
                 R.string.desc_chat,
                 R.string.desc_auth_ui,
-                R.string.desc_image
+                R.string.desc_image,
+                R.string.desc_todolist
         };
 
         @Override
