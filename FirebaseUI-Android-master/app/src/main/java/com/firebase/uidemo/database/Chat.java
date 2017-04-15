@@ -1,6 +1,6 @@
 package com.firebase.uidemo.database;
 
-public class Chat {
+public class Chat implements Comparable<Chat> {
     private String mName;
     private String mMessage;
     private String mUid;
@@ -21,6 +21,14 @@ public class Chat {
         mMessage = message;
         mUid = uid;
         mTimeStamp = timestamp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Chat)) return false;
+        Chat chat = (Chat) o;
+        return chat.mName.equals(this.mName) && chat.mMessage.equals(this.mMessage)
+                && chat.mUid.equals(this.mUid) && chat.mTimeStamp == this.mTimeStamp;
     }
 
     public String getName() {
@@ -48,4 +56,11 @@ public class Chat {
     }
 
     public Long getTimeStamp() { return mTimeStamp; }
+
+    public void setTimeStamp(long timeStamp) { mTimeStamp = timeStamp; }
+
+    @Override
+    public int compareTo(Chat chat) {
+        return (int) (this.mTimeStamp - chat.mTimeStamp);
+    }
 }

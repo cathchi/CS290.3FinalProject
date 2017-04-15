@@ -39,6 +39,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,7 +49,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.TreeSet;
 
 public class ChatActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
     private static final String TAG = "RecyclerViewDemo";
@@ -64,7 +68,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private RecyclerView mMessages;
     private LinearLayoutManager mManager;
     private ChatAdapter mAdapter;
-    private TextView mEmptyListMessage;
     private ChatAdapter.ChatHolder mChatHolder;
 
     private Long mDate;
@@ -75,6 +78,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private List<Chat> mChats = new ArrayList<>();
     private List<String> mNames = new ArrayList<>();
     private String mReceiverUID;
+
+    private boolean mInitallyLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +96,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
 
         mSendButton = (Button) findViewById(R.id.sendButton);
         mMessageEdit = (EditText) findViewById(R.id.messageEdit);
-        mEmptyListMessage = (TextView) findViewById(R.id.emptyTextView);
 
         mRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference ref = mRef.child("users");
@@ -139,6 +143,43 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessages = (RecyclerView) findViewById(R.id.messagesList);
         mMessages.setHasFixedSize(false);
         mMessages.setLayoutManager(mManager);
+
+
+        mChatRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Chat chat = dataSnapshot.getValue(Chat.class);
+                int index = mChats.indexOf(chat);
+                if (index < 0) {
+                    mChats.add(chat); // this is not sorted potentially
+                    Collections.sort(mChats);
+                    mAdapter.notifyItemInserted(mChats.size() - 1);
+                }
+                Log.d("HOW MANY TIMES", "HEREAGAIN");
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
     @Override
@@ -235,20 +276,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessageEdit.setEnabled(isSignedIn());
     }
 
-//    private void storeToDatabase() {
-//
-//        if (mDBHelper == null) {
-//            mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
-//        }
-//        SQLiteDatabase database = mDBHelper.getWritableDatabase();
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mChat.getName());
-//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessage);
-//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mDate);
-//        contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUID);
-//        int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
-//    }
-
 
     private void readFromDatabase() {
         ChatActivity.this.mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
@@ -256,11 +283,11 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         SQLiteDatabase db = ChatActivity.this.mDBHelper.getReadableDatabase();
 
         String[] projection = {
-               "*"
+                "*"
         };
 
         String selection = ChatContract.ChatHistory.COLUMN_NAME_UID + " = ?";
-        String[] selectionArgs = { mReceiverUID };
+        String[] selectionArgs = {mReceiverUID};
 
         String sortOrder = ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP + " DESC";
 
@@ -275,16 +302,17 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         );
 
         while (cursor.moveToNext()) {
-            mChats.add(new Chat(
+            Chat e = new Chat(
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_NAMES)),
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES)),
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_UID)),
                     cursor.getLong(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP))
-            ));
+            );
         }
         Log.d("EXECUTED", "DONE");
         db.close();
         cursor.close();
+
     }
 
 }
