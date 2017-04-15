@@ -40,8 +40,11 @@ public class ToDoListActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         // Create a new Adapter
+        //final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+        //        android.R.layout.simple_list_item_checked, android.R.id.text1);
+
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_checked, android.R.id.text1);
+               android.R.layout.simple_list_item_1, android.R.id.text1);
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
@@ -72,7 +75,7 @@ public class ToDoListActivity extends AppCompatActivity {
             // This function is called each time a child item is removed.
             public void onChildRemoved(DataSnapshot dataSnapshot){
                 String value = dataSnapshot.getValue(String.class);
-                listView.setSelection(adapter.getPosition(value));
+                //listView.setSelection(adapter.getPosition(value));
                 //adapter.remove(value);
             }
 
