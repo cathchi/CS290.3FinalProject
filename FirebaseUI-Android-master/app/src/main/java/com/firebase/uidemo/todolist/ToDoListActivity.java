@@ -1,5 +1,6 @@
 package com.firebase.uidemo.todolist;
 
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -108,7 +109,14 @@ public class ToDoListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                Query myQuery = myRef.orderByValue().equalTo((String)
+                AlertDialog.Builder adb = new AlertDialog.Builder(
+                        ToDoListActivity.this);
+                adb.setTitle("Task: " + listView.getItemAtPosition(position).toString());
+                adb.setMessage("Notes:"
+                        +parent.getItemAtPosition(position));
+                adb.setPositiveButton("Ok", null);
+                adb.show();
+                /*Query myQuery = myRef.orderByValue().equalTo((String)
                         listView.getItemAtPosition(position));
 
                 myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -124,7 +132,7 @@ public class ToDoListActivity extends AppCompatActivity {
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 })
-                ;}
+                ;*/}
         })
         ;}
 }
