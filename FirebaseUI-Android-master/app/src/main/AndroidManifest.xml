@@ -47,6 +47,14 @@
         <activity
             android:name=".storage.ImageActivity"
             android:label="@string/name_image"/>
+
+        <!-- List choice activity -->
+        <activity
+            android:name=".todolist.ListsActivity"/>
+
+        <!-- To-Do List choice activity -->
+        <activity
+            android:name=".todolist.ToDoListActivity"/>
     </application>
 
 </manifest>
