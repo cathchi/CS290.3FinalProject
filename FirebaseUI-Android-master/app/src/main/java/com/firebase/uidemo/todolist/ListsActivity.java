@@ -33,7 +33,7 @@ import java.util.Set;
  */
 
 public class ListsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private String [] listnames = {"Project 1", "Project 2"};
+    private String [] listnames = new String[0];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
