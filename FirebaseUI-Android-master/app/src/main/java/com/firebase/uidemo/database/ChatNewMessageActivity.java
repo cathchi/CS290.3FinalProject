@@ -92,6 +92,7 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
             if (index>-1) {
                 Intent intent = new Intent(this, ChatActivity.class);
                 intent.putExtra("UID", mUIDs.get(index));
+                intent.putExtra("NEW_MESSAGE", false);
                 startActivity(intent);
             }
             else {

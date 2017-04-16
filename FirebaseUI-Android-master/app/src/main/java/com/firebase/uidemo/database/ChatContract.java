@@ -24,6 +24,7 @@ public final class ChatContract {
         public static final String COLUMN_NAME_MESSAGES = "messages";
         public static final String COLUMN_NAME_TIMESTAMP = "timestamp";
         public static final String COLUMN_NAME_MESSAGEID = "messageid";
+        public static final String COLUMN_NAME_RECIPIENTUID = "recipient_uid";
     }
 
 }

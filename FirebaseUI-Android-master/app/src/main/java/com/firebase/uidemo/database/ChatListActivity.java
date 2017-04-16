@@ -24,6 +24,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,8 +40,10 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     private List<String> mDisplayNames = new ArrayList<>();
     private List<String> mNames = new ArrayList<>();
     private List<String> mUIDs = new ArrayList<>();
+    private List<String> mRecipientUID = new ArrayList<>();
     private List<String> mMessages = new ArrayList<>();
     private List<String> mMessageIDs = new ArrayList<>();
+    private List<ArrayList<String>> mRecipientUIDs = new ArrayList<>();
     private List<Long> mTimeStamps = new ArrayList<>();
     private ChatListAdapter chatListAdapter;
     private SQLiteOpenHelper mDBHelper;
@@ -88,11 +94,20 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     Log.d("PRINTING EVERYTHING", mNames.get(i));
                     Log.d("PRINTING EVERYTHING", mMessages.get(i));
                     Log.d("PRINTING EVERYTHING", mMessageIDs.get(i));
+                    JSONObject RUIDs = new JSONObject();
+                    try {
+                        RUIDs.put("RECIPIENT UIDs", new JSONArray(mRecipientUIDs.get(i)));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    String newRUIDs = RUIDs.toString();
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessages.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mTimeStamps.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, mRecipientUID.get(i));
+                    //contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, newRUIDs);
                     try {
                         id += database.insertOrThrow(ChatContract.ChatHistory.TABLE_NAME, null, contentValues);
                     } catch (SQLException e){
@@ -130,6 +145,8 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     mNames.add(ds.getValue(Chat.class).getName());
                     mUIDs.add(ds.getValue(Chat.class).getUid());
                     mMessages.add(ds.getValue(Chat.class).getMessage());
+                    mRecipientUID.add(ds.getValue(Chat.class).getRUID());
+                    //mRecipientUIDs.add(ds.getValue(Chat.class).getRUIDs());
                     mTimeStamps.add(ds.getValue(Chat.class).getTimeStamp());
 
 //                    Log.d("MESSAGE ID", ds.getKey());
@@ -158,6 +175,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         //String id = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UID", id);
+        intent.putExtra("NEW_MESSAGE", false);
         startActivity(intent);
 
     }
