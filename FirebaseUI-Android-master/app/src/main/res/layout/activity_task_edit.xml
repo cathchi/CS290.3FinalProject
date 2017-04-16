@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/taskEditString"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Edit Task"
+        android:textAlignment="center"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/taskString"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Task:"
+        android:textSize="24sp"
+        android:layout_marginTop="30dp"
+        android:background="@color/tw__light_gray"/>
+
+    <EditText
+        android:id="@+id/taskNameEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Type Task Here"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/notesLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Notes:"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:background="@color/tw__light_gray"/>
+
+    <EditText
+        android:id="@+id/notesEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Put details of the task here" />
+
+    <TextView
+        android:id="@+id/assignLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Assigned To:"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:background="@color/tw__light_gray"/>
+
+    <EditText
+        android:id="@+id/assignEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="List who is assigned to the task" />
+
+    <Button
+        android:id="@+id/doneButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="3dp"
+        android:text="Done" />
+</LinearLayout>
