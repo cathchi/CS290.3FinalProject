@@ -4,12 +4,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.firebase.uidemo.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -21,6 +23,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Katherine on 4/14/2017.
@@ -64,6 +70,7 @@ public class ToDoListActivity extends AppCompatActivity {
             // This function is called once for each child that exists
             // when the listener is added. Then it is called
             // each time a new child is added.
+
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 String value = dataSnapshot.getValue(String.class);
@@ -97,26 +104,37 @@ public class ToDoListActivity extends AppCompatActivity {
                 // Create a new child with a auto-generated ID.
                 DatabaseReference childRef = myRef.push();
 
+
                 // Set the child's data to the value passed in from the text box.
                 childRef.setValue(text.getText().toString());
 
             }
         });
 
-        // Delete items when clicked
+        //get item data on click
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
+                LayoutInflater inflater = ToDoListActivity.this.getLayoutInflater();
                 AlertDialog.Builder adb = new AlertDialog.Builder(
                         ToDoListActivity.this);
                 adb.setTitle("Task: " + listView.getItemAtPosition(position).toString());
-                adb.setMessage("Notes:"
-                        +parent.getItemAtPosition(position));
-                adb.setPositiveButton("Ok", null);
+                //adb.setMessage("Notes:"
+                //        +parent.getItemAtPosition(position));
+                View dView = inflater.inflate(R.layout.task_details_dialog, null);
+                adb.setView(dView);
+                final TextView notesSection = (TextView) dView.findViewById(R.id.notes);
+                notesSection.setText("Notes:");
+                TextView assignSection = (TextView) dView.findViewById(R.id.assign);
+                assignSection.setText("Assigned to: ");
+                TextView extrasSection = (TextView) dView.findViewById(R.id.extras);
+                extrasSection.setText("Extras: ");
+                adb.setPositiveButton("Edit", null);//change to Edit
+                adb.setNegativeButton("OK", null);
                 adb.show();
-                /*Query myQuery = myRef.orderByValue().equalTo((String)
+
+                Query myQuery = myRef.orderByValue().equalTo((String)
                         listView.getItemAtPosition(position));
 
                 myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -124,7 +142,12 @@ public class ToDoListActivity extends AppCompatActivity {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChildren()) {
                             DataSnapshot firstChild = dataSnapshot.getChildren().iterator().next();
-                            firstChild.getRef().removeValue();
+                            DataSnapshot notesRef = firstChild.child("notes");
+                            if(notesRef.getValue() != null)
+                                notesSection.setText("Notes: " + firstChild.child("notes").getValue());
+                            else
+                                notesSection.setText("Notes: ");
+                            //firstChild.getRef().removeValue();
                         }
                     }
 
@@ -132,7 +155,7 @@ public class ToDoListActivity extends AppCompatActivity {
                     public void onCancelled(DatabaseError databaseError) {
                     }
                 })
-                ;*/}
+                ;}
         })
         ;}
 }
