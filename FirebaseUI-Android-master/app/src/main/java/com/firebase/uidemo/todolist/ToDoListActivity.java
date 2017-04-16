@@ -1,5 +1,7 @@
 package com.firebase.uidemo.todolist;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,16 +26,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static com.firebase.uidemo.R.id.notes;
+import static com.firebase.uidemo.R.id.titleEdit;
 
 /**
  * Created by Katherine on 4/14/2017.
  */
 
 public class ToDoListActivity extends AppCompatActivity {
-
+    private ArrayList<String> taskIDs = new ArrayList<String>();
     String childname;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +79,8 @@ public class ToDoListActivity extends AppCompatActivity {
 
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
-                String value = dataSnapshot.getValue(String.class);
+                String value = dataSnapshot.child("task").getValue(String.class);
+                taskIDs.add(dataSnapshot.getKey());
                 adapter.add(value);
             }
 
@@ -106,7 +113,9 @@ public class ToDoListActivity extends AppCompatActivity {
 
 
                 // Set the child's data to the value passed in from the text box.
-                childRef.setValue(text.getText().toString());
+                childRef.child("task").setValue(text.getText().toString());
+                childRef.child("notes").setValue("");
+                childRef.child("assign").setValue("");
 
             }
         });
@@ -116,21 +125,32 @@ public class ToDoListActivity extends AppCompatActivity {
 
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                LayoutInflater inflater = ToDoListActivity.this.getLayoutInflater();
+                final LayoutInflater inflater = ToDoListActivity.this.getLayoutInflater();
                 AlertDialog.Builder adb = new AlertDialog.Builder(
                         ToDoListActivity.this);
-                adb.setTitle("Task: " + listView.getItemAtPosition(position).toString());
-                //adb.setMessage("Notes:"
-                //        +parent.getItemAtPosition(position));
                 View dView = inflater.inflate(R.layout.task_details_dialog, null);
                 adb.setView(dView);
+                final TextView titleSection = (TextView)  dView.findViewById(R.id.taskTitle);
+                titleSection.setText("Task: "+ listView.getItemAtPosition(position).toString());
                 final TextView notesSection = (TextView) dView.findViewById(R.id.notes);
                 notesSection.setText("Notes:");
                 TextView assignSection = (TextView) dView.findViewById(R.id.assign);
                 assignSection.setText("Assigned to: ");
-                TextView extrasSection = (TextView) dView.findViewById(R.id.extras);
-                extrasSection.setText("Extras: ");
-                adb.setPositiveButton("Edit", null);//change to Edit
+                final int posIndex = position;
+                adb.setPositiveButton("Edit", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        /*AlertDialog.Builder editor = new AlertDialog.Builder(ToDoListActivity.this);
+                        View editorView = inflater.inflate(R.layout.task_editor_dialog, null);
+                        editor.setView(editorView);
+                        EditText titleEdit = (EditText) editorView.findViewById(R.id.titleEdit);
+                        editor.show();*/
+                        Intent i = new Intent(ToDoListActivity.this, TaskEditActivity.class);
+                        i.putExtra("taskID", taskIDs.get(posIndex));
+                        i.putExtra("toDoListID", childname);
+                        startActivity(i);
+                    }
+                });//change to Edit
                 adb.setNegativeButton("OK", null);
                 adb.show();
 
@@ -143,10 +163,11 @@ public class ToDoListActivity extends AppCompatActivity {
                         if (dataSnapshot.hasChildren()) {
                             DataSnapshot firstChild = dataSnapshot.getChildren().iterator().next();
                             DataSnapshot notesRef = firstChild.child("notes");
-                            if(notesRef.getValue() != null)
-                                notesSection.setText("Notes: " + firstChild.child("notes").getValue());
+                            if(notesRef.toString() != null)
+                                notesSection.setText("Notes: " + notesRef.getValue(String.class));
                             else
                                 notesSection.setText("Notes: ");
+
                             //firstChild.getRef().removeValue();
                         }
                     }
