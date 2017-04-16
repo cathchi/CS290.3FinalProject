@@ -31,8 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static com.firebase.uidemo.R.id.notes;
-import static com.firebase.uidemo.R.id.titleEdit;
 
 /**
  * Created by Katherine on 4/14/2017.
@@ -134,7 +132,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 titleSection.setText("Task: "+ listView.getItemAtPosition(position).toString());
                 final TextView notesSection = (TextView) dView.findViewById(R.id.notes);
                 notesSection.setText("Notes:");
-                TextView assignSection = (TextView) dView.findViewById(R.id.assign);
+                final TextView assignSection = (TextView) dView.findViewById(R.id.assign);
                 assignSection.setText("Assigned to: ");
                 final int posIndex = position;
                 adb.setPositiveButton("Edit", new DialogInterface.OnClickListener(){
@@ -154,19 +152,23 @@ public class ToDoListActivity extends AppCompatActivity {
                 adb.setNegativeButton("OK", null);
                 adb.show();
 
-                Query myQuery = myRef.orderByValue().equalTo((String)
-                        listView.getItemAtPosition(position));
+                Query myQuery = myRef.child(taskIDs.get(position));
 
                 myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChildren()) {
-                            DataSnapshot firstChild = dataSnapshot.getChildren().iterator().next();
-                            DataSnapshot notesRef = firstChild.child("notes");
-                            if(notesRef.toString() != null)
-                                notesSection.setText("Notes: " + notesRef.getValue(String.class));
+                            Log.d("DataSnapshot:", dataSnapshot.toString());
+                            DataSnapshot notesRef = dataSnapshot.child("notes");
+                            Log.d("onDataChange", notesRef.toString());
+                            if(notesRef.getValue() != null)
+                                notesSection.setText("Notes: " + notesRef.getValue().toString());
                             else
                                 notesSection.setText("Notes: ");
+                            if(dataSnapshot.child("assign").getValue() != null)
+                                assignSection.setText("Assigned to: " + dataSnapshot.child("assign").getValue().toString());
+                            else
+                                assignSection.setText("Assigned to: ");
 
                             //firstChild.getRef().removeValue();
                         }
