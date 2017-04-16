@@ -2,11 +2,13 @@ package com.firebase.uidemo.database;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -39,6 +41,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 
     private List<String> mDisplayNames = new ArrayList<>();
     private List<String> mNames = new ArrayList<>();
+    private List<String> mRNames = new ArrayList<>();
     private List<String> mUIDs = new ArrayList<>();
     private List<String> mRecipientUID = new ArrayList<>();
     private List<String> mMessages = new ArrayList<>();
@@ -56,6 +59,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatlist);
+
 
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
@@ -90,19 +94,20 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                 ContentValues contentValues = new ContentValues();
                 long id = 0;
                 for (int i = 0; i < mNames.size(); i++) {
-                    Log.d("PRINTING EVERYTHING", mUIDs.get(i));
-                    Log.d("PRINTING EVERYTHING", mNames.get(i));
-                    Log.d("PRINTING EVERYTHING", mMessages.get(i));
-                    Log.d("PRINTING EVERYTHING", mMessageIDs.get(i));
-                    JSONObject RUIDs = new JSONObject();
-                    try {
-                        RUIDs.put("RECIPIENT UIDs", new JSONArray(mRecipientUIDs.get(i)));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    String newRUIDs = RUIDs.toString();
+//                    Log.d("PRINTING EVERYTHING", mUIDs.get(i));
+//                    Log.d("PRINTING EVERYTHING", mNames.get(i));
+//                    Log.d("PRINTING EVERYTHING", mMessages.get(i));
+//                    Log.d("PRINTING EVERYTHING", mMessageIDs.get(i));
+//                    JSONObject RUIDs = new JSONObject();
+//                    try {
+//                        RUIDs.put("RECIPIENT UIDs", new JSONArray(mRecipientUIDs.get(i)));
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//                    String newRUIDs = RUIDs.toString();
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RNAMES, mRNames. get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_UID, mUIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessages.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mTimeStamps.get(i));
@@ -136,16 +141,17 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     mMessageIDs.add(ds.getKey());
-                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getName())
-                            && !ds.getValue(Chat.class).getUid()
-                            .equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-                        mDisplayNames.add(ds.getValue(Chat.class).getName());
+                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getRName())
+                            && !ds.getValue(Chat.class).getName()
+                            .equals(ds.getValue(Chat.class).getRName())) {
+                        mDisplayNames.add(ds.getValue(Chat.class).getRName());
                     }
                     chatListAdapter.notifyItemInserted(mDisplayNames.size()-1);
                     mNames.add(ds.getValue(Chat.class).getName());
                     mUIDs.add(ds.getValue(Chat.class).getUid());
                     mMessages.add(ds.getValue(Chat.class).getMessage());
                     mRecipientUID.add(ds.getValue(Chat.class).getRUID());
+                    mRNames.add(ds.getValue(Chat.class).getRName());
                     //mRecipientUIDs.add(ds.getValue(Chat.class).getRUIDs());
                     mTimeStamps.add(ds.getValue(Chat.class).getTimeStamp());
 
@@ -153,6 +159,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 //                    Log.d("NAMES", ds.getValue(Chat.class).getName());
 //                    Log.d("UID", ds.getValue(Chat.class).getUid());
 //                    Log.d("MESSAGES", ds.getValue(Chat.class).getMessage());
+//                    Log.d("SIZE", mDisplayNames.size() +"");
                 }
                 if (!mNames.isEmpty()) {
                     writeDatabase();
@@ -171,7 +178,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     @Override
     public void recyclerViewItemClicked(int position) {
         String name = mDisplayNames.get(position);
-        String id = mUIDs.get(mNames.indexOf(name));
+        String id = mRecipientUID.get(mRNames.indexOf(name));
         //String id = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UID", id);

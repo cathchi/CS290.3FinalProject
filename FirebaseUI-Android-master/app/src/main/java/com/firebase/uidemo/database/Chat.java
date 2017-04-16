@@ -9,6 +9,7 @@ public class Chat implements Comparable<Chat> {
     private String mMessage;
     private String mUID;
     private String mRecipientUID;
+    private String mRecipientName;
     private ArrayList<String> mRecipientUIDs;
     private Long mTimeStamp;
 
@@ -22,28 +23,29 @@ public class Chat implements Comparable<Chat> {
 //        mUid = uid;
 //    }
 
-    public Chat(String name, String message, String uid, Long timestamp) {
-        mName = name;
-        mMessage = message;
-        mUID = uid;
-        mTimeStamp = timestamp;
-    }
+//    public Chat(String name, String message, String uid, Long timestamp) {
+//        mName = name;
+//        mMessage = message;
+//        mUID = uid;
+//        mTimeStamp = timestamp;
+//    }
 
-    public Chat(String name, String message, String uid, String ruid, Long timestamp) {
+    public Chat(String name, String rname, String message, String uid, String ruid, Long timestamp) {
         mName = name;
+        mRecipientName = rname;
         mMessage = message;
         mUID = uid;
         mRecipientUID = ruid;
         mTimeStamp = timestamp;
     }
 
-    public Chat(String name, String message, String uid, ArrayList<String> ruid, Long timestamp) {
-        mName = name;
-        mMessage = message;
-        mUID = uid;
-        mRecipientUIDs = ruid;
-        mTimeStamp = timestamp;
-    }
+//    public Chat(String name, String message, String uid, ArrayList<String> ruid, Long timestamp) {
+//        mName = name;
+//        mMessage = message;
+//        mUID = uid;
+//        mRecipientUIDs = ruid;
+//        mTimeStamp = timestamp;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -60,6 +62,10 @@ public class Chat implements Comparable<Chat> {
     public void setName(String name) {
         mName = name;
     }
+
+    public String getRName() { return mRecipientName; }
+
+    public void setRName(String name) { mRecipientName = name; }
 
     public String getMessage() {
         return mMessage;
