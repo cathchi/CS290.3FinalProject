@@ -67,6 +67,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private List<Chat> mChats = new ArrayList<>();
     private ArrayList<String> mRecipientUIDs = new ArrayList<>();
     private String mReceiverUID;
+    private String mReceiverName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         setContentView(R.layout.activity_chat);
         //Log.d("MESSAGE", mChats.get(0).getMessage());
         mReceiverUID = getIntent().getStringExtra("UID");
+        mReceiverName = getIntent().getStringExtra("NAME");
+
         mRecipientUIDs.add(mReceiverUID);
         if (getIntent().getBooleanExtra("NEW_MESSAGE", true)) {
             readFromDatabase();
@@ -96,13 +99,13 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = "User " + mUID.substring(0, 6);
+                String name = mAuth.getCurrentUser().getDisplayName();
 
                 mMessage = mMessageEdit.getText().toString();
 
                 Calendar calendar = Calendar.getInstance();
                 mDate = calendar.getTimeInMillis();
-                mChat = new Chat(name, mMessage, mUID, mReceiverUID, mDate);
+                mChat = new Chat(name, mReceiverName, mMessage, mUID, mReceiverUID, mDate);
                 mChatRef.push().setValue(mChat, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError error, DatabaseReference reference) {
@@ -295,6 +298,7 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         while (cursor.moveToNext()) {
             Chat e = new Chat(
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_NAMES)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_RNAMES)),
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES)),
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_UID)),
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID)),
