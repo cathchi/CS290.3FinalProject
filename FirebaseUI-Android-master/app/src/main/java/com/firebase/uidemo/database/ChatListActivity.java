@@ -8,9 +8,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 
 import com.firebase.uidemo.R;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
@@ -47,7 +50,22 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatlist);
-        //mDisplayNames.add("jmuFR6aaVaYj8enOr1bO9cmCxoZ2");
+
+        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setDisplayShowCustomEnabled(true);
+        getSupportActionBar().setCustomView(R.layout.new_message_toolbar);
+        //View view = getSupportActionBar().getCustomView();
+
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.new_message_button);
+
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(v.getContext(), ChatNewMessageActivity.class);
+                startActivity(i);
+            }
+        });
+
         chatListAdapter = new ChatListAdapter(this, mDisplayNames, this);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.chats);
         recyclerView.setAdapter(chatListAdapter);
