@@ -84,7 +84,7 @@ public class ToDoListActivity extends AppCompatActivity {
 
             // This function is called each time a child item is removed.
             public void onChildRemoved(DataSnapshot dataSnapshot){
-                String value = dataSnapshot.getValue(String.class);
+                String value = dataSnapshot.child("task").getValue(String.class);
                 adapter.remove(value);
             }
 
@@ -122,7 +122,7 @@ public class ToDoListActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
+                                    final int position, long id) {
                 final LayoutInflater inflater = ToDoListActivity.this.getLayoutInflater();
                 AlertDialog.Builder adb = new AlertDialog.Builder(
                         ToDoListActivity.this);
@@ -149,6 +149,25 @@ public class ToDoListActivity extends AppCompatActivity {
                         startActivity(i);
                     }
                 });//change to Edit
+                adb.setNeutralButton("DELETE", new DialogInterface.OnClickListener(){
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Query myQuery = myRef.child(taskIDs.get(posIndex));
+
+                        myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                dataSnapshot.getRef().removeValue();
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                });
                 adb.setNegativeButton("OK", null);
                 adb.show();
 
