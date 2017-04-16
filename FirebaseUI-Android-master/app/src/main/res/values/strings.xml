@@ -68,6 +68,7 @@
     <string name="allow_new_email_acccount">Allow account creation if email does not exist.</string>
 
     <!-- strings for database demo activities -->
-    <string name="start_chatting">No messages. Start chatting at the bottom!</string>
     <string name="signed_in">Signed In</string>
+    <string name="new_message">New Message</string>
+
 </resources>
