@@ -1,7 +1,9 @@
 package com.firebase.uidemo.database;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -33,6 +35,7 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
     private DatabaseReference mRef;
     private List<String> mEmails = new ArrayList<>();
     private List<String> mUIDs = new ArrayList<>();
+    private List<String> mNames = new ArrayList<>();
     private String mSearchedEmail = null;
 
     @Override
@@ -47,6 +50,7 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 mEmails.add(dataSnapshot.getValue(User.class).getEmail());
                 mUIDs.add(dataSnapshot.getValue(User.class).getUid());
+                mNames.add(dataSnapshot.getValue(User.class).getName());
             }
 
             @Override
@@ -92,7 +96,9 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
             if (index>-1) {
                 Intent intent = new Intent(this, ChatActivity.class);
                 intent.putExtra("UID", mUIDs.get(index));
+                intent.putExtra("NAME", mNames.get(index));
                 intent.putExtra("NEW_MESSAGE", false);
+
                 startActivity(intent);
             }
             else {
