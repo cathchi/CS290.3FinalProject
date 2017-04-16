@@ -18,6 +18,7 @@ public class ChatHistoryDBHelper extends SQLiteOpenHelper {
                     ChatContract.ChatHistory.TABLE_NAME + " (" +
                     ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID + " STRING PRIMARY KEY UNIQUE," +
                     ChatContract.ChatHistory.COLUMN_NAME_NAMES + " STRING," +
+                    ChatContract.ChatHistory.COLUMN_NAME_RNAMES + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_UID + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_MESSAGES + " TEXT," +
