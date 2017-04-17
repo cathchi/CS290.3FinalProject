@@ -51,7 +51,9 @@ public class Chat implements Comparable<Chat> {
     public boolean equals(Object o) {
         if (!(o instanceof Chat)) return false;
         Chat chat = (Chat) o;
-        return chat.mName.equals(this.mName) && chat.mMessage.equals(this.mMessage)
+        return chat.mName.equals(this.mName) && chat.mMessage.equals(this.mMessage) &&
+                chat.mRecipientName.equals(this.mRecipientName)
+                && chat.mRecipientUID.equals(this.mRecipientUID)
                 && chat.mUID.equals(this.mUID) && chat.mTimeStamp == this.mTimeStamp;
     }
 
@@ -87,9 +89,9 @@ public class Chat implements Comparable<Chat> {
 
     public void setRUID(String ruid) { mRecipientUID = ruid; }
 
-    public ArrayList<String> getRUIDs() { return mRecipientUIDs; }
+//    public ArrayList<String> getRUIDs() { return mRecipientUIDs; }
 
-    public void setRUIDs(ArrayList<String> ruid) { mRecipientUIDs = ruid; }
+    //public void setRUIDs(ArrayList<String> ruid) { mRecipientUIDs = ruid; }
 
     public Long getTimeStamp() { return mTimeStamp; }
 
