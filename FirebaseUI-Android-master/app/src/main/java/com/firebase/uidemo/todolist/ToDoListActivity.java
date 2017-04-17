@@ -89,6 +89,8 @@ public class ToDoListActivity extends AppCompatActivity {
             public void onChildRemoved(DataSnapshot dataSnapshot){
                 String value = dataSnapshot.child("task").getValue(String.class);
                 adapter.remove(value);
+                //listView.removeViewAt(taskIDs.indexOf(dataSnapshot.getKey().toString()));
+                taskIDs.remove(taskIDs.indexOf(dataSnapshot.getKey().toString()));
             }
 
             // The following functions are also required in ChildEventListener implementations.
