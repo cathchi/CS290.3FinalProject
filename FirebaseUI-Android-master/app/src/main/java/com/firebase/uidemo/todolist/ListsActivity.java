@@ -54,7 +54,7 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
         final DatabaseReference ref= database.getReference()
                 .child("users").child(mUid).child("todolists");
 
-        ref.addValueEventListener(new ValueEventListener() {
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
