@@ -69,10 +69,13 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private String mReceiverUID;
     private String mReceiverName;
 
+    private boolean firstDownload;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        firstDownload = false;
         //Log.d("MESSAGE", mChats.get(0).getMessage());
         mReceiverUID = getIntent().getStringExtra("UID");
         mReceiverName = getIntent().getStringExtra("NAME");
@@ -135,46 +138,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessages.setHasFixedSize(false);
         mMessages.setLayoutManager(mManager);
 
-
-//        mChatRef.addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                Chat chat = dataSnapshot.getValue(Chat.class);
-//                int index = mChats.indexOf(chat);
-//                if ((chat.getName().equals(mAuth.getCurrentUser().getDisplayName()) ||
-//                        chat.getRName().equals(mAuth.getCurrentUser().getDisplayName())) &&
-//                        (chat.getName().equals(mReceiverName) ||
-//                                chat.getRName().equals(mReceiverName)) &&
-//                index < 0) {
-//                    // add part of code where every single UID of the people is checked
-//                    mChats.add(chat); // this is not sorted potentially
-//                    Collections.sort(mChats);
-//                    mAdapter.notifyItemInserted(mChats.size() - 1);
-//                }
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-
-
     }
 
     @Override
@@ -187,6 +150,9 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         if (isSignedIn()) {
             attachRecyclerViewAdapter();
             readFromDatabase();
+            if (firstDownload) {
+                updateMessage();
+            }
         } else {
             signInAnonymously();
         }
@@ -283,10 +249,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         };
 
         String selection = "(" + ChatContract.ChatHistory.COLUMN_NAME_UID + " = ?"
-                +" AND " + ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID + " = ?) OR ("
-                + ChatContract.ChatHistory.COLUMN_NAME_UID + " = ? AND "+
+                + " AND " + ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID + " = ?) OR ("
+                + ChatContract.ChatHistory.COLUMN_NAME_UID + " = ? AND " +
                 ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID + " = ?)";
-        String[] selectionArgs = { mUID, mReceiverUID, mReceiverUID, mUID };
+        String[] selectionArgs = {mUID, mReceiverUID, mReceiverUID, mUID};
 
         String sortOrder = ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP + " DESC";
 
@@ -313,14 +279,55 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
             if (index < 0) {
                 mChats.add(e);
                 Collections.sort(mChats);
-                mAdapter.notifyItemInserted(mChats.size()-1);
+                mAdapter.notifyItemInserted(mChats.size() - 1);
             }
+            Log.d("DATABASESQLITE", "ADDED");
 
         }
         Log.d("EXECUTED", "DONE");
         db.close();
         cursor.close();
+        firstDownload = true;
+    }
 
+    private void updateMessage() {
+        mChatRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Chat chat = dataSnapshot.getValue(Chat.class);
+                int index = mChats.indexOf(chat);
+                if ((chat.getName().equals(mAuth.getCurrentUser().getDisplayName()) ||
+                        chat.getRName().equals(mAuth.getCurrentUser().getDisplayName())) &&
+                        (chat.getName().equals(mReceiverName) ||
+                                chat.getRName().equals(mReceiverName)) && index < 0) {
+                    // add part of code where every single UID of the people is checked
+                    mChats.add(chat); // this is not sorted potentially
+                    Collections.sort(mChats);
+                    mAdapter.notifyItemInserted(mChats.size() - 1);
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 }
