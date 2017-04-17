@@ -37,10 +37,11 @@ import java.util.Set;
  */
 
 public class ToDoListActivity extends AppCompatActivity {
-    private ArrayList<String> taskIDs = new ArrayList<String>();
     private HashMap<String, Task> tasks = new HashMap<String, Task>();
     private String childname;
     private TaskAdapter adapter;
+    private ChildEventListener mChildListener;
+    private DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +64,7 @@ public class ToDoListActivity extends AppCompatActivity {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
-        final DatabaseReference myRef= database.getReference()
+        myRef= database.getReference()
                 .child("users").child(mUid).child("todolists").child(childname);
 
         // Get a reference to the todoItems child items it the database
@@ -71,7 +72,7 @@ public class ToDoListActivity extends AppCompatActivity {
 
         // Assign a listener to detect changes to the child items
         // of the database reference.
-        ChildEventListener c = new ChildEventListener(){
+        mChildListener = new ChildEventListener(){
 
             // This function is called once for each child that exists
             // when the listener is added. Then it is called
@@ -81,7 +82,6 @@ public class ToDoListActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 String value = dataSnapshot.child("task").getValue(String.class);
                 String notes = dataSnapshot.child("notes").getValue(String.class);
-                taskIDs.add(dataSnapshot.getKey());
                 Task newtask = new Task(value, notes, dataSnapshot.getKey());
                 tasks.put(dataSnapshot.getKey(), newtask);
                 adapter.add(newtask);
@@ -91,7 +91,6 @@ public class ToDoListActivity extends AppCompatActivity {
             public void onChildRemoved(DataSnapshot dataSnapshot){
                 String taskid = dataSnapshot.getKey().toString();
                 adapter.remove(tasks.get(taskid));
-                taskIDs.remove(taskIDs.indexOf(dataSnapshot.getKey().toString()));
                 tasks.remove(taskid);
 
             }
@@ -109,7 +108,7 @@ public class ToDoListActivity extends AppCompatActivity {
             }
         };
 
-        myRef.addChildEventListener(c);
+        myRef.addChildEventListener(mChildListener);
 
         // Add items via the Button and EditText at the bottom of the window.
         final EditText text = (EditText) findViewById(R.id.todoText);
@@ -124,9 +123,9 @@ public class ToDoListActivity extends AppCompatActivity {
 
                 // Set the child's data to the value passed in from the text box.
                 childRef.child("task").setValue(text.getText().toString());
+                Log.d("TASKVALUE", text.getText().toString());
                 childRef.child("notes").setValue("");
                 childRef.child("assign").setValue("");
-
             }
         });
 
@@ -151,7 +150,6 @@ public class ToDoListActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Intent i = new Intent(ToDoListActivity.this, TaskEditActivity.class);
-                        //i.putExtra("taskID", taskIDs.get(posIndex));
                         String tid = adapter.getItem(posIndex).getTaskid();
                         i.putExtra("taskID", tid);
                         i.putExtra("toDoListID", childname);
@@ -162,10 +160,10 @@ public class ToDoListActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Log.d("DELETE", "removeID: " + taskIDs.get(posIndex));
                         String tid = adapter.getItem(posIndex).getTaskid();
                         adapter.remove(tasks.get(tid));
                         myRef.child(tid).removeValue();
+                        Log.d("DELETE", "removeID: " + tid);
                     }
                 });
                 adb.setNegativeButton("OK", null);
@@ -204,12 +202,6 @@ public class ToDoListActivity extends AppCompatActivity {
     }
 
     public void updateList() {
-        final FirebaseDatabase database = FirebaseDatabase.getInstance();
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String mUid = currentUser.getUid();
-        final DatabaseReference myRef= database.getReference()
-                .child("users").child(mUid).child("todolists").child(childname);
-
         myRef.addListenerForSingleValueEvent(new ValueEventListener (){
 
             @Override
@@ -219,9 +211,10 @@ public class ToDoListActivity extends AppCompatActivity {
                     Task oldTask = tasks.get(taskid.getKey());
                     int pos = adapter.getPosition(oldTask);
                     if(oldTask != null) {
-                        boolean needsUpdate = oldTask.checkUpdates(taskid.child("task").getValue(String.class), taskid.child("notes").getValue(String.class));
+                        String taskname = taskid.child("task").getValue(String.class);
+                        String tasknotes = taskid.child("notes").getValue(String.class);
+                        boolean needsUpdate = oldTask.checkUpdates(taskname, tasknotes);
                         if(needsUpdate) {
-
                             oldTask.setTaskTitle(taskid.child("task").getValue(String.class));
                             oldTask.setNotes(taskid.child("notes").getValue(String.class));
                             adapter.remove(oldTask);
@@ -244,6 +237,12 @@ public class ToDoListActivity extends AppCompatActivity {
             Task t = adapter.getItem(i);
 
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        myRef.removeEventListener(mChildListener);
     }
 
 }

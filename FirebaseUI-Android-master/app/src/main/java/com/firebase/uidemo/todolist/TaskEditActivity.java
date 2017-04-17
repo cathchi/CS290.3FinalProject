@@ -69,11 +69,7 @@ public class TaskEditActivity extends Activity {
                 myRef.child("task").setValue(taskEdit.getText().toString());
                 myRef.child("notes").setValue(notesEdit.getText().toString());
                 myRef.child("assign").setValue(assignEdit.getText().toString());
-
-             /*   Intent i = new Intent(TaskEditActivity.this, ToDoListActivity.class);
-                i.putExtra("childid", toDoListID);
-                startActivity(i);
-                */finish();
+                finish();
             }
         });
     }
