@@ -38,7 +38,10 @@ import java.util.Set;
 
 public class ToDoListActivity extends AppCompatActivity {
     private ArrayList<String> taskIDs = new ArrayList<String>();
-    String childname;
+    private HashMap<String, Task> tasks = new HashMap<String, Task>();
+    private String childname;
+    private TaskAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +54,7 @@ public class ToDoListActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         // Create a new Adapter
-
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-               android.R.layout.simple_list_item_1, android.R.id.text1);
+        adapter = new TaskAdapter(this, R.layout.todolist_item, R.id.text1);
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
@@ -70,7 +71,7 @@ public class ToDoListActivity extends AppCompatActivity {
 
         // Assign a listener to detect changes to the child items
         // of the database reference.
-        myRef.addChildEventListener(new ChildEventListener(){
+        ChildEventListener c = new ChildEventListener(){
 
             // This function is called once for each child that exists
             // when the listener is added. Then it is called
@@ -79,15 +80,20 @@ public class ToDoListActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 String value = dataSnapshot.child("task").getValue(String.class);
+                String notes = dataSnapshot.child("notes").getValue(String.class);
                 taskIDs.add(dataSnapshot.getKey());
-                adapter.add(value);
+                Task newtask = new Task(value, notes, dataSnapshot.getKey());
+                tasks.put(dataSnapshot.getKey(), newtask);
+                adapter.add(newtask);
             }
 
             // This function is called each time a child item is removed.
             public void onChildRemoved(DataSnapshot dataSnapshot){
-                String value = dataSnapshot.child("task").getValue(String.class);
-                adapter.remove(value);
+                String taskid = dataSnapshot.getKey().toString();
+                adapter.remove(tasks.get(taskid));
                 taskIDs.remove(taskIDs.indexOf(dataSnapshot.getKey().toString()));
+                tasks.remove(taskid);
+
             }
 
             // The following functions are also required in ChildEventListener implementations.
@@ -101,7 +107,9 @@ public class ToDoListActivity extends AppCompatActivity {
                 // Failed to read value
                 Log.w("TAG:", "Failed to read value.", error.toException());
             }
-        });
+        };
+
+        myRef.addChildEventListener(c);
 
         // Add items via the Button and EditText at the bottom of the window.
         final EditText text = (EditText) findViewById(R.id.todoText);
@@ -133,7 +141,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 View dView = inflater.inflate(R.layout.task_details_dialog, null);
                 adb.setView(dView);
                 final TextView titleSection = (TextView)  dView.findViewById(R.id.taskTitle);
-                titleSection.setText("Task: "+ listView.getItemAtPosition(position).toString());
+                titleSection.setText("Task: "+ ((Task)listView.getItemAtPosition(position)).getName());
                 final TextView notesSection = (TextView) dView.findViewById(R.id.notes);
                 notesSection.setText("Notes:");
                 final TextView assignSection = (TextView) dView.findViewById(R.id.assign);
@@ -143,23 +151,27 @@ public class ToDoListActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Intent i = new Intent(ToDoListActivity.this, TaskEditActivity.class);
-                        i.putExtra("taskID", taskIDs.get(posIndex));
+                        //i.putExtra("taskID", taskIDs.get(posIndex));
+                        String tid = adapter.getItem(posIndex).getTaskid();
+                        i.putExtra("taskID", tid);
                         i.putExtra("toDoListID", childname);
                         startActivity(i);
                     }
-                });//change to Edit
+                });//change to Edit`q
                 adb.setNeutralButton("DELETE", new DialogInterface.OnClickListener(){
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Log.d("DELETE", "removeID: " + taskIDs.get(posIndex));
-                        myRef.child(taskIDs.get(posIndex)).removeValue();
+                        String tid = adapter.getItem(posIndex).getTaskid();
+                        adapter.remove(tasks.get(tid));
+                        myRef.child(tid).removeValue();
                     }
                 });
                 adb.setNegativeButton("OK", null);
                 adb.show();
 
-                Query myQuery = myRef.child(taskIDs.get(position));
+                Query myQuery = myRef.child(adapter.getItem(posIndex).getTaskid());
 
                 myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -184,4 +196,54 @@ public class ToDoListActivity extends AppCompatActivity {
                 ;}
         })
         ;}
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        updateList();
+    }
+
+    public void updateList() {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String mUid = currentUser.getUid();
+        final DatabaseReference myRef= database.getReference()
+                .child("users").child(mUid).child("todolists").child(childname);
+
+        myRef.addListenerForSingleValueEvent(new ValueEventListener (){
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot taskid : dataSnapshot.getChildren()) {
+                    Log.d("OLDTASK", taskid.getKey().toString());
+                    Task oldTask = tasks.get(taskid.getKey());
+                    int pos = adapter.getPosition(oldTask);
+                    if(oldTask != null) {
+                        boolean needsUpdate = oldTask.checkUpdates(taskid.child("task").getValue(String.class), taskid.child("notes").getValue(String.class));
+                        if(needsUpdate) {
+
+                            oldTask.setTaskTitle(taskid.child("task").getValue(String.class));
+                            oldTask.setNotes(taskid.child("notes").getValue(String.class));
+                            adapter.remove(oldTask);
+                            adapter.insert(oldTask, pos);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+        Log.d("UPDATELIST", "list count = " + adapter.getCount());
+        for (int i = 0; i < adapter.getCount(); i++) {
+            Task t = adapter.getItem(i);
+
+        }
+    }
+
 }
