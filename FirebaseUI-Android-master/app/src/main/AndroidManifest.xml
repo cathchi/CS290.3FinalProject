@@ -54,6 +54,8 @@
         <!-- To-Do List choice activity -->
         <activity
             android:name=".todolist.ToDoListActivity"/>
+        <activity
+            android:name=".todolist.TaskEditActivity"/>
     </application>
 
 </manifest>

@@ -70,4 +70,7 @@
     <!-- strings for database demo activities -->
     <string name="start_chatting">No messages. Start chatting at the bottom!</string>
     <string name="signed_in">Signed In</string>
+
+    <!-- strings for to do list -->
+    <string name="notesHint">Add any notes about the Task. </string>
 </resources>
