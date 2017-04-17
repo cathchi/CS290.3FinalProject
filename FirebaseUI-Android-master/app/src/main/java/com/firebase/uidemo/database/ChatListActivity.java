@@ -20,6 +20,7 @@ import android.view.View;
 import com.firebase.uidemo.R;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,12 +47,16 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     private List<String> mRecipientUID = new ArrayList<>();
     private List<String> mMessages = new ArrayList<>();
     private List<String> mMessageIDs = new ArrayList<>();
+    private List<Chat> mChats = new ArrayList<>();
     private List<ArrayList<String>> mRecipientUIDs = new ArrayList<>();
     private List<Long> mTimeStamps = new ArrayList<>();
     private ChatListAdapter chatListAdapter;
     private SQLiteOpenHelper mDBHelper;
     private DatabaseReference mChatRef;
     private DatabaseReference mRef;
+    private FirebaseUser mUser;
+
+    private boolean isSender;
 
     private static final String TAG = "ERROR";
 
@@ -135,16 +140,21 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 
     private void getDatabaseData () {
         mRef = FirebaseDatabase.getInstance().getReference();
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
+        final String displayName = mUser.getDisplayName();
         mChatRef = mRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("chats");
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     mMessageIDs.add(ds.getKey());
-                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getRName())
-                            && !ds.getValue(Chat.class).getName()
-                            .equals(ds.getValue(Chat.class).getRName())) {
-                        mDisplayNames.add(ds.getValue(Chat.class).getRName());
+                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getRName())) {
+                        if (!displayName.equals(ds.getValue(Chat.class).getRName())) {
+                            mDisplayNames.add(ds.getValue(Chat.class).getRName());
+                        } else {
+                            mDisplayNames.add(ds.getValue(Chat.class).getName());
+                        }
+                        mChats.add(ds.getValue(Chat.class));
                     }
                     chatListAdapter.notifyItemInserted(mDisplayNames.size()-1);
                     mNames.add(ds.getValue(Chat.class).getName());
@@ -177,8 +187,12 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 
     @Override
     public void recyclerViewItemClicked(int position) {
-        String name = mDisplayNames.get(position);
-        String id = mRecipientUID.get(mRNames.indexOf(name));
+        String id;
+        if (mUser.getUid().equals(mChats.get(position).getUid())) {
+            id = mChats.get(position).getRUID();
+        } else {
+            id = mChats.get(position).getUid();
+        }
         //String id = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UID", id);
