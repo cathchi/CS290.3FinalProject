@@ -14,8 +14,6 @@
 
 package com.firebase.uidemo.database;
 
-import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -26,33 +24,25 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.uidemo.R;
 import com.firebase.uidemo.util.SignInResultNotifier;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.PriorityQueue;
-import java.util.TreeSet;
 
 public class ChatActivity extends AppCompatActivity implements FirebaseAuth.AuthStateListener {
     private static final String TAG = "RecyclerViewDemo";
@@ -75,16 +65,22 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
     private String mUID;
     private Chat mChat;
     private List<Chat> mChats = new ArrayList<>();
+    private ArrayList<String> mRecipientUIDs = new ArrayList<>();
     private String mReceiverUID;
+    private String mReceiverName;
 
+    private boolean firstDownload;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        firstDownload = false;
         //Log.d("MESSAGE", mChats.get(0).getMessage());
         mReceiverUID = getIntent().getStringExtra("UID");
-        readFromDatabase();
+        mReceiverName = getIntent().getStringExtra("NAME");
+
+        mRecipientUIDs.add(mReceiverUID);
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
@@ -103,13 +99,14 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String name = "User " + mUID.substring(0, 6);
+                String name = mAuth.getCurrentUser().getDisplayName();
 
                 mMessage = mMessageEdit.getText().toString();
 
                 Calendar calendar = Calendar.getInstance();
                 mDate = calendar.getTimeInMillis();
-                mChat = new Chat(name, mMessage, mUID, mDate);
+                Log.d("ChatActivity", "Pushing chat with RName=" + mReceiverName);
+                mChat = new Chat(name, mReceiverName, mMessage, mUID, mReceiverUID, mDate);
                 mChatRef.push().setValue(mChat, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError error, DatabaseReference reference) {
@@ -141,41 +138,6 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         mMessages.setHasFixedSize(false);
         mMessages.setLayoutManager(mManager);
 
-
-        mChatRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Chat chat = dataSnapshot.getValue(Chat.class);
-                int index = mChats.indexOf(chat);
-                if (index < 0) {
-                    mChats.add(chat); // this is not sorted potentially
-                    Collections.sort(mChats);
-                    mAdapter.notifyItemInserted(mChats.size() - 1);
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
     }
 
     @Override
@@ -187,6 +149,10 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         // not be able to read any data from the Database.
         if (isSignedIn()) {
             attachRecyclerViewAdapter();
+            readFromDatabase();
+            if (firstDownload) {
+                updateMessage();
+            }
         } else {
             signInAnonymously();
         }
@@ -282,16 +248,19 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
                 "*"
         };
 
-        String selection = ChatContract.ChatHistory.COLUMN_NAME_UID + " = ?";
-        String[] selectionArgs = {mReceiverUID};
+        String selection = "(" + ChatContract.ChatHistory.COLUMN_NAME_UID + " = ?"
+                + " AND " + ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID + " = ?) OR ("
+                + ChatContract.ChatHistory.COLUMN_NAME_UID + " = ? AND " +
+                ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID + " = ?)";
+        String[] selectionArgs = {mUID, mReceiverUID, mReceiverUID, mUID};
 
         String sortOrder = ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP + " DESC";
 
         Cursor cursor = db.query(
                 ChatContract.ChatHistory.TABLE_NAME,
                 projection,
-                null,
-                null,
+                selection,
+                selectionArgs,
                 null,
                 null,
                 sortOrder
@@ -300,15 +269,65 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         while (cursor.moveToNext()) {
             Chat e = new Chat(
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_NAMES)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_RNAMES)),
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES)),
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_UID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID)),
                     cursor.getLong(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP))
             );
+            int index = mChats.indexOf(e);
+            if (index < 0) {
+                mChats.add(e);
+                Collections.sort(mChats);
+                mAdapter.notifyItemInserted(mChats.size() - 1);
+            }
+            Log.d("DATABASESQLITE", "ADDED");
+
         }
         Log.d("EXECUTED", "DONE");
         db.close();
         cursor.close();
+        firstDownload = true;
+    }
 
+    private void updateMessage() {
+        mChatRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Chat chat = dataSnapshot.getValue(Chat.class);
+                int index = mChats.indexOf(chat);
+                if ((chat.getName().equals(mAuth.getCurrentUser().getDisplayName()) ||
+                        chat.getRName().equals(mAuth.getCurrentUser().getDisplayName())) &&
+                        (chat.getName().equals(mReceiverName) ||
+                                chat.getRName().equals(mReceiverName)) && index < 0) {
+                    // add part of code where every single UID of the people is checked
+                    mChats.add(chat); // this is not sorted potentially
+                    Collections.sort(mChats);
+                    mAdapter.notifyItemInserted(mChats.size() - 1);
+                }
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 }

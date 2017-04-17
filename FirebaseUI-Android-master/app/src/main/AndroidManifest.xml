@@ -28,6 +28,10 @@
         <!-- ChatList -->
         <activity android:name=".database.ChatListActivity"
             android:label="ChatList Activity"></activity>
+
+        <activity android:name=".database.ChatNewMessageActivity"
+            android:label="Chat New Message Activity"></activity>
+
         <!-- Chat demo -->
         <activity
             android:name=".database.ChatActivity"
