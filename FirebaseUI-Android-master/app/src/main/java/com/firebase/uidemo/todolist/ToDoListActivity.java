@@ -51,8 +51,6 @@ public class ToDoListActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         // Create a new Adapter
-        //final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-        //        android.R.layout.simple_list_item_checked, android.R.id.text1);
 
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                android.R.layout.simple_list_item_1, android.R.id.text1);
@@ -89,7 +87,6 @@ public class ToDoListActivity extends AppCompatActivity {
             public void onChildRemoved(DataSnapshot dataSnapshot){
                 String value = dataSnapshot.child("task").getValue(String.class);
                 adapter.remove(value);
-                //listView.removeViewAt(taskIDs.indexOf(dataSnapshot.getKey().toString()));
                 taskIDs.remove(taskIDs.indexOf(dataSnapshot.getKey().toString()));
             }
 
@@ -145,11 +142,6 @@ public class ToDoListActivity extends AppCompatActivity {
                 adb.setPositiveButton("Edit", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
-                        /*AlertDialog.Builder editor = new AlertDialog.Builder(ToDoListActivity.this);
-                        View editorView = inflater.inflate(R.layout.task_editor_dialog, null);
-                        editor.setView(editorView);
-                        EditText titleEdit = (EditText) editorView.findViewById(R.id.titleEdit);
-                        editor.show();*/
                         Intent i = new Intent(ToDoListActivity.this, TaskEditActivity.class);
                         i.putExtra("taskID", taskIDs.get(posIndex));
                         i.putExtra("toDoListID", childname);
@@ -160,26 +152,6 @@ public class ToDoListActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //Query myQuery = myRef.child(taskIDs.get(posIndex));
-
-                        /*myRef.child(taskIDs.get(posIndex)).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                Log.d("onDataChange DELETE", "dataSnapshot:" + dataSnapshot.toString());
-                                /*for (DataSnapshot testSnapshot: dataSnapshot.getChildren()) {
-                                    testSnapshot.getRef().removeValue();
-                                }
-                                //dataSnapshot.getRef().removeValue();
-                                dataSnapshot.getRef().child("notes").setValue(null);
-                                dataSnapshot.getRef().child("assign").setValue(null);
-                                dataSnapshot.getRef().setValue(null);
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });*/
                         Log.d("DELETE", "removeID: " + taskIDs.get(posIndex));
                         myRef.child(taskIDs.get(posIndex)).removeValue();
                     }
@@ -202,8 +174,6 @@ public class ToDoListActivity extends AppCompatActivity {
                                 assignSection.setText("Assigned to: " + dataSnapshot.child("assign").getValue().toString());
                             else
                                 assignSection.setText("Assigned to: ");
-
-                            //firstChild.getRef().removeValue();
                         }
                     }
 
