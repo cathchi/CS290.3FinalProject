@@ -89,7 +89,9 @@ public class ToDoListActivity extends AppCompatActivity {
             }
 
             // The following functions are also required in ChildEventListener implementations.
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName){}
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName){
+                Log.d("onchildchanged","prevchild: " + previousChildName);
+            }
             public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName){}
 
             @Override
@@ -153,19 +155,28 @@ public class ToDoListActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Query myQuery = myRef.child(taskIDs.get(posIndex));
+                        //Query myQuery = myRef.child(taskIDs.get(posIndex));
 
-                        myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        /*myRef.child(taskIDs.get(posIndex)).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                dataSnapshot.getRef().removeValue();
+                                Log.d("onDataChange DELETE", "dataSnapshot:" + dataSnapshot.toString());
+                                /*for (DataSnapshot testSnapshot: dataSnapshot.getChildren()) {
+                                    testSnapshot.getRef().removeValue();
+                                }
+                                //dataSnapshot.getRef().removeValue();
+                                dataSnapshot.getRef().child("notes").setValue(null);
+                                dataSnapshot.getRef().child("assign").setValue(null);
+                                dataSnapshot.getRef().setValue(null);
                             }
 
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
 
                             }
-                        });
+                        });*/
+                        Log.d("DELETE", "removeID: " + taskIDs.get(posIndex));
+                        myRef.child(taskIDs.get(posIndex)).removeValue();
                     }
                 });
                 adb.setNegativeButton("OK", null);
@@ -177,9 +188,7 @@ public class ToDoListActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChildren()) {
-                            Log.d("DataSnapshot:", dataSnapshot.toString());
                             DataSnapshot notesRef = dataSnapshot.child("notes");
-                            Log.d("onDataChange", notesRef.toString());
                             if(notesRef.getValue() != null)
                                 notesSection.setText("Notes: " + notesRef.getValue().toString());
                             else
