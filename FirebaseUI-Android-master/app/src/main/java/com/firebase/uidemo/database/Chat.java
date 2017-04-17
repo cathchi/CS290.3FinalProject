@@ -54,7 +54,7 @@ public class Chat implements Comparable<Chat> {
         return chat.mName.equals(this.mName) && chat.mMessage.equals(this.mMessage) &&
                 chat.mRecipientName.equals(this.mRecipientName)
                 && chat.mRecipientUID.equals(this.mRecipientUID)
-                && chat.mUID.equals(this.mUID) && chat.mTimeStamp == this.mTimeStamp;
+                && chat.mUID.equals(this.mUID) && chat.mTimeStamp.equals(this.mTimeStamp);
     }
 
     public String getName() {
