@@ -43,14 +43,16 @@ public class TaskEditActivity extends Activity {
         final EditText notesEdit = (EditText) findViewById(R.id.notesEdit);
         final EditText assignEdit = (EditText) findViewById(R.id.assignEdit);
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                taskEdit.setText(dataSnapshot.child("task").getValue().toString());
-                if(dataSnapshot.child("notes").getValue()!=null)
-                    notesEdit.setText(dataSnapshot.child("notes").getValue().toString());
-                if(dataSnapshot.child("assign").getValue()!=null)
-                    assignEdit.setText(dataSnapshot.child("assign").getValue().toString());
+                if(dataSnapshot.getValue() != null) {
+                    taskEdit.setText(dataSnapshot.child("task").getValue().toString());
+                    if (dataSnapshot.child("notes").getValue() != null)
+                        notesEdit.setText(dataSnapshot.child("notes").getValue().toString());
+                    if (dataSnapshot.child("assign").getValue() != null)
+                        assignEdit.setText(dataSnapshot.child("assign").getValue().toString());
+                }
             }
 
             @Override
