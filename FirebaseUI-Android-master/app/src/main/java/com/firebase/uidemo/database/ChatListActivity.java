@@ -110,6 +110,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
 //                        e.printStackTrace();
 //                    }
 //                    String newRUIDs = RUIDs.toString();
+                    Log.d("PRINTING EVERYTHING", mRNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RNAMES, mRNames. get(i));
@@ -188,14 +189,18 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     @Override
     public void recyclerViewItemClicked(int position) {
         String id;
+        String name;
         if (mUser.getUid().equals(mChats.get(position).getUid())) {
             id = mChats.get(position).getRUID();
+            name = mChats.get(position).getRName();
         } else {
             id = mChats.get(position).getUid();
+            name = mChats.get(position).getName();
         }
         //String id = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UID", id);
+        intent.putExtra("NAME", name);
         intent.putExtra("NEW_MESSAGE", false);
         startActivity(intent);
 
