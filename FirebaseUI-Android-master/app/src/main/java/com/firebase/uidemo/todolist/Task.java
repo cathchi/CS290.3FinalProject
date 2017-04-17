@@ -1,5 +1,7 @@
 package com.firebase.uidemo.todolist;
 
+import android.util.Log;
+
 /**
  * Created by JasmineLu on 4/15/17.
  */
@@ -15,8 +17,8 @@ public class Task {
     }
 
     public Task(String title, String notes, String taskid){
-        taskTitle = title;
-        this.notes = notes;
+        taskTitle = (title == null) ? "" : title;
+        this.notes = (notes == null) ? "" : notes;
         this.taskid = taskid;
     }
 
@@ -51,6 +53,7 @@ public class Task {
     public String getTaskid() {return taskid;}
 
     public boolean checkUpdates (String title, String notes) {
+        Log.d("TASK", "title: " + this.taskTitle + "notes: " + this.notes);
         if(!this.taskTitle.equals(title) || !this.notes.equals(notes))
             return true;
         return false;
