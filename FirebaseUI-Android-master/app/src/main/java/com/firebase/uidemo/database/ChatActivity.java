@@ -288,8 +288,8 @@ public class ChatActivity extends AppCompatActivity implements FirebaseAuth.Auth
         Cursor cursor = db.query(
                 ChatContract.ChatHistory.TABLE_NAME,
                 projection,
-                selection,
-                selectionArgs,
+                null,
+                null,
                 null,
                 null,
                 sortOrder
