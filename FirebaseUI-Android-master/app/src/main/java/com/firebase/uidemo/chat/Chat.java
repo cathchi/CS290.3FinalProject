@@ -1,8 +1,6 @@
-package com.firebase.uidemo.database;
+package com.firebase.uidemo.chat;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Chat implements Comparable<Chat> {
     private String mName;

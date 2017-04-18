@@ -6,7 +6,8 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    
     <application
         android:name=".auth.LeakCatcher"
         android:allowBackup="true"
@@ -26,16 +27,16 @@
                 android:resource="@xml/shortcuts"/>
         </activity>
         <!-- ChatList -->
-        <activity android:name=".database.ChatListActivity"
+        <activity android:name=".chat.ChatListActivity"
             android:label="ChatList Activity"></activity>
 
-        <activity android:name=".database.ChatNewMessageActivity"
+        <activity android:name=".chat.ChatNewMessageActivity"
             android:label="Chat New Message Activity"></activity>
 
         <!-- Chat demo -->
         <activity
-            android:name=".database.ChatActivity"
-            android:parentActivityName=".database.ChatListActivity"
+            android:name=".chat.ChatActivity"
+            android:parentActivityName=".chat.ChatListActivity"
             android:label="@string/name_chat"/>
 
         <!-- Auth UI demo -->

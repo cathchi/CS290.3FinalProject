@@ -1,4 +1,4 @@
-package com.firebase.uidemo.database;
+package com.firebase.uidemo.chat;
 
 import android.provider.BaseColumns;
 
