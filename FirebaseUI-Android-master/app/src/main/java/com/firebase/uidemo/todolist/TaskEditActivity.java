@@ -47,11 +47,11 @@ public class TaskEditActivity extends Activity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.getValue() != null) {
-                    taskEdit.setText(dataSnapshot.child("task").getValue().toString());
+                    taskEdit.setText(dataSnapshot.child("task").getValue(String.class));
                     if (dataSnapshot.child("notes").getValue() != null)
-                        notesEdit.setText(dataSnapshot.child("notes").getValue().toString());
+                        notesEdit.setText(dataSnapshot.child("notes").getValue(String.class));
                     if (dataSnapshot.child("assign").getValue() != null)
-                        assignEdit.setText(dataSnapshot.child("assign").getValue().toString());
+                        assignEdit.setText(dataSnapshot.child("assign").getValue(String.class));
                 }
             }
 
@@ -69,10 +69,7 @@ public class TaskEditActivity extends Activity {
                 myRef.child("task").setValue(taskEdit.getText().toString());
                 myRef.child("notes").setValue(notesEdit.getText().toString());
                 myRef.child("assign").setValue(assignEdit.getText().toString());
-
-                Intent i = new Intent(TaskEditActivity.this, ToDoListActivity.class);
-                i.putExtra("childid", toDoListID);
-                startActivity(i);
+                finish();
             }
         });
     }
