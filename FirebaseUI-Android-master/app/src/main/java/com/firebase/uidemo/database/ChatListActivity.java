@@ -149,7 +149,8 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     mMessageIDs.add(ds.getKey());
-                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getRName())) {
+                    if ((mDisplayNames.indexOf(ds.getValue(Chat.class).getRName()) < 0) &&
+                    (mDisplayNames.indexOf(ds.getValue(Chat.class).getName()) < 0)) {
                         if (!displayName.equals(ds.getValue(Chat.class).getRName())) {
                             mDisplayNames.add(ds.getValue(Chat.class).getRName());
                         } else {
