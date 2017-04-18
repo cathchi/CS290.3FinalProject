@@ -1,4 +1,4 @@
-package com.firebase.uidemo.database;
+package com.firebase.uidemo.chat;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
