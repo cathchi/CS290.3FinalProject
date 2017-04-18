@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ import java.util.Set;
  */
 
 public class ListsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private String [] listnames = new String[0];
+    private List<String> listnames = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +62,13 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
                 Map<String, Object> td = (HashMap<String,Object>) dataSnapshot.getValue();
                 if(td != null) {
                     Set<String> ids = td.keySet();
-                    listnames = ids.toArray(new String[0]);
+                    listnames = new ArrayList(ids);
                 }
                 else {
-                    listnames = new String [0];
+                    listnames = new ArrayList<>();
                 }
                 fillListView();
-                Log.d("names number", listnames.length+"");
+                Log.d("names number", listnames.size()+"");
                 Log.d("Read success", "items added");
             }
 
@@ -92,7 +93,7 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        startListActivity(listnames[position]);
+        startListActivity(listnames.get(position));
     }
 
     // starts new activity
@@ -107,7 +108,7 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
     // when user clicks "ok" the ToDoListActivity starts to display the new list.
     public void onClickNewList(View v) {
         Log.d("Inside onClickNewList", "yes");
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
         alertDialogBuilder.setTitle("New List");
         alertDialogBuilder.setMessage("Name this list: ");
 
@@ -118,21 +119,37 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
         et.setLayoutParams(lp);
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(et);
-
-        // set dialog message
-        alertDialogBuilder.setCancelable(false).setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                String text = et.getText().toString();
-                Log.d("Got text", text);
-                NewListCreater create = new NewListCreater(text);
-                String newid = create.addToFirebase();
-                startListActivity(newid);
-            }
-        });
-
+        alertDialogBuilder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
         // create alert dialog
-        AlertDialog alertDialog = alertDialogBuilder.create();
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
         // show it
         alertDialog.show();
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String text = et.getText().toString();
+                Log.d("Got text", text);
+                if(!text.equals("")) {
+                    NewListCreater create = new NewListCreater(text);
+                    String newid = create.addToFirebase();
+                    startListActivity(newid);
+                    listnames.add(newid);
+                    alertDialog.dismiss();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        //addListsfromFB();
+        fillListView();
     }
 }
