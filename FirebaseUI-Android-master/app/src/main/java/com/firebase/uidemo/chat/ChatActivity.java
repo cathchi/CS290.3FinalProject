@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-package com.firebase.uidemo.database;
+package com.firebase.uidemo.chat;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
