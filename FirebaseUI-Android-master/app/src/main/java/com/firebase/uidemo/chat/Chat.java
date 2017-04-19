@@ -10,6 +10,7 @@ public class Chat implements Comparable<Chat> {
     private String mRecipientName;
     private ArrayList<String> mRecipientUIDs;
     private Long mTimeStamp;
+    private String mType;
 
     public Chat() {
         // Needed for Firebase
@@ -28,13 +29,14 @@ public class Chat implements Comparable<Chat> {
 //        mTimeStamp = timestamp;
 //    }
 
-    public Chat(String name, String rname, String message, String uid, String ruid, Long timestamp) {
+    public Chat(String name, String rname, String message, String uid, String ruid, Long timestamp, String type) {
         mName = name;
         mRecipientName = rname;
         mMessage = message;
         mUID = uid;
         mRecipientUID = ruid;
         mTimeStamp = timestamp;
+        mType = type;
     }
 
 //    public Chat(String name, String message, String uid, ArrayList<String> ruid, Long timestamp) {
@@ -52,7 +54,8 @@ public class Chat implements Comparable<Chat> {
         return chat.mName.equals(this.mName) && chat.mMessage.equals(this.mMessage) &&
                 chat.mRecipientName.equals(this.mRecipientName)
                 && chat.mRecipientUID.equals(this.mRecipientUID)
-                && chat.mUID.equals(this.mUID) && chat.mTimeStamp.equals(this.mTimeStamp);
+                && chat.mUID.equals(this.mUID) && chat.mTimeStamp.equals(this.mTimeStamp)
+                && chat.mType.equals(this.mType);
     }
 
     public String getName() {
@@ -94,6 +97,10 @@ public class Chat implements Comparable<Chat> {
     public Long getTimeStamp() { return mTimeStamp; }
 
     public void setTimeStamp(long timeStamp) { mTimeStamp = timeStamp; }
+
+    public String getType() { return mType; }
+
+    public void setType(String type) { mType = type; }
 
     @Override
     public int compareTo(Chat chat) {
