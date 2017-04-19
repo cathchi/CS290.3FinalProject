@@ -445,7 +445,7 @@ public class ChatActivity extends AppCompatActivity
 
     @Override
     public void recyclerViewItemClicked(int position) {
-        if (startPlaying) {
+        if (startPlaying && mMediaPlayer != null) {
             try {
                 mMediaPlayer.stop();
                 mMediaPlayer.release();
@@ -454,7 +454,8 @@ public class ChatActivity extends AppCompatActivity
                 Log.e(TAG, "Media Player is null");
                 e.printStackTrace();
             }
-        } else {
+        }
+        else {
             if (mChats.get(position).getUid().equals(mUID)) {
                 playRecording(position);
             }
@@ -493,7 +494,7 @@ public class ChatActivity extends AppCompatActivity
     private void playRecording(int position) {
         mMediaPlayer = new MediaPlayer();
         if (mFileName == null) {
-            mFileName = getExternalCacheDir().getAbsolutePath() +
+            mFileName = getExternalCacheDir().getAbsolutePath() + "/" +
                     mChats.get(position).getMessage().substring(FILE_PATH_START);
         }
         try {
@@ -504,5 +505,14 @@ public class ChatActivity extends AppCompatActivity
             Log.e(TAG, "prepare() failed");
         }
         startPlaying = true;
+
+        mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mp.stop();
+                mp.release();
+                startPlaying = false;
+            }
+        });
     }
 }
