@@ -42,6 +42,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     private List<String> mMessages = new ArrayList<>();
     private List<String> mMessageIDs = new ArrayList<>();
     private List<Chat> mChats = new ArrayList<>();
+    private List<String> mTypes = new ArrayList<>();
     private List<ArrayList<String>> mRecipientUIDs = new ArrayList<>();
     private List<Long> mTimeStamps = new ArrayList<>();
     private ChatListAdapter chatListAdapter;
@@ -112,6 +113,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessages.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mTimeStamps.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, mRecipientUID.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGETYPE, mTypes.get(i));
                     //contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, newRUIDs);
                     try {
                         id += database.insertOrThrow(ChatContract.ChatHistory.TABLE_NAME, null, contentValues);
@@ -158,6 +160,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     mMessages.add(ds.getValue(Chat.class).getMessage());
                     mRecipientUID.add(ds.getValue(Chat.class).getRUID());
                     mRNames.add(ds.getValue(Chat.class).getRName());
+                    mTypes.add(ds.getValue(Chat.class).getType());
                     //mRecipientUIDs.add(ds.getValue(Chat.class).getRUIDs());
                     mTimeStamps.add(ds.getValue(Chat.class).getTimeStamp());
 

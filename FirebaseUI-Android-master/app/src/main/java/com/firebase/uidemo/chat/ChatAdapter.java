@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.util.RecyclerViewClickListener;
 
 import java.util.List;
 
@@ -24,16 +25,18 @@ import java.util.List;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
 
-    private List<String> mNames;
     private List<Chat> mChats;
     private String mUID;
-    private TextView mEmptyListMessage;
     private Context mContext;
+    private RecyclerViewClickListener mRecyclerViewClickListener;
 
-    public ChatAdapter(Context context, List<Chat> chats, String uid) {
+    private static final String AUDIO_MESSAGE = "audio";
+
+    public ChatAdapter(Context context, List<Chat> chats, String uid, RecyclerViewClickListener rvcl) {
         this.mChats = chats;
         this.mContext = context;
         this.mUID = uid;
+        this.mRecyclerViewClickListener = rvcl;
     }
 
 
@@ -55,6 +58,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
             holder.setIsSender(true);
         } else {
             holder.setIsSender(false);
+        }
+
+        final int p = position;
+        if (chat.getType().equals(AUDIO_MESSAGE)) {
+            holder.mTextField.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mRecyclerViewClickListener.recyclerViewItemClicked(p);
+                }
+            });
         }
     }
 
