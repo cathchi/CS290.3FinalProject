@@ -8,6 +8,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+
     
     <application
         android:name=".auth.LeakCatcher"
@@ -62,6 +66,18 @@
             android:name=".todolist.ToDoListActivity"/>
         <activity
             android:name=".todolist.TaskEditActivity"/>
+        <!-- Camera Activity -->
+        <activity android:name=".auth.CameraActivity"
+
+            >
+            <!-- configure this activity to use landscape orientation -->
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
+
 
 </manifest>

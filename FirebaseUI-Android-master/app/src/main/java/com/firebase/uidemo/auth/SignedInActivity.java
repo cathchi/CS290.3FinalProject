@@ -138,7 +138,7 @@ public class SignedInActivity extends AppCompatActivity {
                 });
     }
 
-    @OnClick(R.id.delete_account)
+    //@OnClick(R.id.delete_account)
     public void deleteAccountClicked() {
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -153,6 +153,12 @@ public class SignedInActivity extends AppCompatActivity {
                 .create();
 
         dialog.show();
+    }
+
+    @OnClick(R.id.go_to_camera)
+    public void goToCameraActivity(){
+        Intent goToCamera = new Intent(getApplicationContext(), CameraActivity.class);
+        startActivity(goToCamera);
     }
 
     private void deleteAccount() {
