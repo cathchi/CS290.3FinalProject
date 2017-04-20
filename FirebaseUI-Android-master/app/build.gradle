@@ -12,6 +12,8 @@ android {
         targetSdkVersion targetSdk
         versionCode 1
         versionName "1.0"
+        resValue "string", "google_maps_key",
+                (project.findProperty("GOOGLE_MAPS_API_KEY") ?: "")
     }
 
     buildTypes {
@@ -38,6 +40,9 @@ dependencies {
     compile "com.google.firebase:firebase-auth:$firebaseVersion"
     compile "com.google.firebase:firebase-database:$firebaseVersion"
     compile "com.google.firebase:firebase-storage:$firebaseVersion"
+    compile 'com.google.android.gms:play-services-places:10.2.0'
+    compile 'com.google.android.gms:play-services-location:10.2.0'
+
 
     // The following dependencies are not required to use the Firebase UI library.
     // They are used to make some aspects of the demo app implementation simpler for
@@ -51,3 +56,4 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
+
