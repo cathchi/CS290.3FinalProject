@@ -1,13 +1,11 @@
-package com.firebase.uidemo.database;
+package com.firebase.uidemo.chat;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.RotateDrawable;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.util.RecyclerViewClickListener;
 
 import java.util.List;
-import java.util.TreeSet;
 
 /**
  * Created by CathyChi on 4/4/17.
@@ -27,16 +25,18 @@ import java.util.TreeSet;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
 
-    private List<String> mNames;
     private List<Chat> mChats;
     private String mUID;
-    private TextView mEmptyListMessage;
     private Context mContext;
+    private RecyclerViewClickListener mRecyclerViewClickListener;
 
-    public ChatAdapter(Context context, List<Chat> chats, String uid) {
+    private static final String AUDIO_MESSAGE = "audio";
+
+    public ChatAdapter(Context context, List<Chat> chats, String uid, RecyclerViewClickListener rvcl) {
         this.mChats = chats;
         this.mContext = context;
         this.mUID = uid;
+        this.mRecyclerViewClickListener = rvcl;
     }
 
 
@@ -58,6 +58,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatHolder> {
             holder.setIsSender(true);
         } else {
             holder.setIsSender(false);
+        }
+
+        final int p = position;
+        if (chat.getType().equals(AUDIO_MESSAGE)) {
+            holder.mTextField.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mRecyclerViewClickListener.recyclerViewItemClicked(p);
+                }
+            });
         }
     }
 

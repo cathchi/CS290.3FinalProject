@@ -1,14 +1,12 @@
-package com.firebase.uidemo.database;
+package com.firebase.uidemo.chat;
 
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -27,10 +25,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +42,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     private List<String> mMessages = new ArrayList<>();
     private List<String> mMessageIDs = new ArrayList<>();
     private List<Chat> mChats = new ArrayList<>();
+    private List<String> mTypes = new ArrayList<>();
     private List<ArrayList<String>> mRecipientUIDs = new ArrayList<>();
     private List<Long> mTimeStamps = new ArrayList<>();
     private ChatListAdapter chatListAdapter;
@@ -118,6 +113,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGES, mMessages.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mTimeStamps.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, mRecipientUID.get(i));
+                    contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGETYPE, mTypes.get(i));
                     //contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, newRUIDs);
                     try {
                         id += database.insertOrThrow(ChatContract.ChatHistory.TABLE_NAME, null, contentValues);
@@ -149,7 +145,8 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     mMessageIDs.add(ds.getKey());
-                    if (!mDisplayNames.contains(ds.getValue(Chat.class).getRName())) {
+                    if ((mDisplayNames.indexOf(ds.getValue(Chat.class).getRName()) < 0) &&
+                    (mDisplayNames.indexOf(ds.getValue(Chat.class).getName()) < 0)) {
                         if (!displayName.equals(ds.getValue(Chat.class).getRName())) {
                             mDisplayNames.add(ds.getValue(Chat.class).getRName());
                         } else {
@@ -163,6 +160,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     mMessages.add(ds.getValue(Chat.class).getMessage());
                     mRecipientUID.add(ds.getValue(Chat.class).getRUID());
                     mRNames.add(ds.getValue(Chat.class).getRName());
+                    mTypes.add(ds.getValue(Chat.class).getType());
                     //mRecipientUIDs.add(ds.getValue(Chat.class).getRUIDs());
                     mTimeStamps.add(ds.getValue(Chat.class).getTimeStamp());
 
