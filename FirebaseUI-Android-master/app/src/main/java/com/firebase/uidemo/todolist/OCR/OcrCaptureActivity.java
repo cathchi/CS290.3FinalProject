@@ -88,6 +88,8 @@ public final class OcrCaptureActivity extends AppCompatActivity {
    //private TextToSpeech tts;
     private DatabaseReference myRef;
 
+    private String toDoListID;
+
 
     /**
      * Initializes the UI and creates the detector pipeline.
@@ -116,14 +118,18 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         gestureDetector = new GestureDetector(this, new CaptureGestureListener());
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
-        Snackbar.make(mGraphicOverlay, "Tap to Speak. Pinch/Stretch to zoom",
+        Snackbar.make(mGraphicOverlay, "Tap to Add to To-Do List. Pinch/Stretch to zoom",
                 Snackbar.LENGTH_LONG)
                 .show();
+
+        Bundle b = getIntent().getExtras();
+        toDoListID = b.getString("toDoListID");
+
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
-        final DatabaseReference myRef = database.getReference()
-                .child("users").child(mUid).child("todolists");
+        myRef = database.getReference()
+                .child("users").child(mUid).child("todolists").child(toDoListID);
     }
 
     /**
@@ -348,6 +354,10 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                 // Speak the string.
                 //tts.speak(text.getValue(), TextToSpeech.QUEUE_ADD, null, "DEFAULT");
                 Toast.makeText(this, text.getValue(), Toast.LENGTH_SHORT).show();
+                DatabaseReference myTask = myRef.push();
+                myTask.child("task").setValue(text.getValue());
+                myTask.child("notes").setValue("");
+                myTask.child("assign").setValue("");
             }
             else {
                 Log.d(TAG, "text data is null");
