@@ -42,6 +42,7 @@ import com.firebase.uidemo.auth.SignedInActivity;
 import com.firebase.uidemo.database.ChatListActivity;
 import com.firebase.uidemo.storage.ImageActivity;
 import com.firebase.uidemo.todolist.ListsActivity;
+import com.firebase.uidemo.todolist.OCR.OcrCaptureActivity;
 import com.firebase.uidemo.todolist.ToDoListActivity;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.tasks.OnCompleteListener;
