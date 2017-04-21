@@ -13,6 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+/*
+    Edited by Jasmine Lu 4/20/2017
+ */
 package com.firebase.uidemo.todolist.OCR;
 
 import android.Manifest;
@@ -46,6 +50,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.firebase.uidemo.todolist.OCR.camera.CameraSource;
 import com.firebase.uidemo.todolist.OCR.camera.CameraSourcePreview;
 import com.firebase.uidemo.todolist.OCR.camera.GraphicOverlay;
+import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.android.gms.vision.text.Line;
@@ -55,6 +60,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -350,14 +356,32 @@ public final class OcrCaptureActivity extends AppCompatActivity {
             text = graphic.getTextBlock();
             if (text != null && text.getValue() != null) {
 
-                Log.d(TAG, "text data is being spoken! " + text.getValue());
+                //Log.d(TAG, "text data is being spoken! " + text.getValue());
                 // Speak the string.
                 //tts.speak(text.getValue(), TextToSpeech.QUEUE_ADD, null, "DEFAULT");
-                Toast.makeText(this, text.getValue(), Toast.LENGTH_SHORT).show();
-                DatabaseReference myTask = myRef.push();
-                myTask.child("task").setValue(text.getValue());
-                myTask.child("notes").setValue("");
-                myTask.child("assign").setValue("");
+                //Toast.makeText(this, text.getValue(), Toast.LENGTH_SHORT).show();
+                List<? extends Text> textComponents = text.getComponents();
+                //for(Text currentText : textComponents) {
+                for(int i = textComponents.size() - 1; i >= 0; i --){
+                    Text currentText = textComponents.get(i);
+                    AlertDialog.Builder addDialog = new AlertDialog.Builder(OcrCaptureActivity.this);
+                    addDialog.setTitle("Add to To-Do List");
+                    addDialog.setMessage("Would you like to add " + currentText.getValue() + " to your " +
+                            "To-Do List, " + toDoListID + "?");
+                    final String textString = currentText.getValue();
+                    addDialog.setPositiveButton("YES",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which){
+                                    DatabaseReference myTask = myRef.push();
+                                    myTask.child("task").setValue(textString);
+                                    myTask.child("notes").setValue("");
+                                    myTask.child("assign").setValue("");
+                                }
+                            });
+                    addDialog.setNegativeButton("NO", null);
+                    addDialog.show();
+                }
+
             }
             else {
                 Log.d(TAG, "text data is null");
