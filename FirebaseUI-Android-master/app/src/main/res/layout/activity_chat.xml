@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".database.ChatActivity">
+    tools:context=".chat.ChatActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/messagesList"
@@ -34,8 +35,18 @@
             android:id="@+id/messageEdit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="133.99"
             android:inputType="text"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/audioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:onClick="record"
+            app:fabSize="mini"
+            app:srcCompat="@android:drawable/presence_audio_online" />
 
         <Button
             android:id="@+id/sendButton"
@@ -43,6 +54,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
+            android:onClick="send"
             android:text="@string/send"/>
 
     </LinearLayout>
