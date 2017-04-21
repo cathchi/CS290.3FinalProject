@@ -343,7 +343,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     }
 
     /**
-     * onTap is called to speak the tapped TextBlock, if any, out loud.
+     * onTap is called to add the tapped TextBlock to the to do list database.
      *
      * @param rawX - the raw position of the tap
      * @param rawY - the raw position of the tap.
@@ -355,20 +355,17 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         if (graphic != null) {
             text = graphic.getTextBlock();
             if (text != null && text.getValue() != null) {
-
-                //Log.d(TAG, "text data is being spoken! " + text.getValue());
-                // Speak the string.
-                //tts.speak(text.getValue(), TextToSpeech.QUEUE_ADD, null, "DEFAULT");
-                //Toast.makeText(this, text.getValue(), Toast.LENGTH_SHORT).show();
                 List<? extends Text> textComponents = text.getComponents();
-                //for(Text currentText : textComponents) {
+                //goes backwards to ensure list is added in order to the database
                 for(int i = textComponents.size() - 1; i >= 0; i --){
                     Text currentText = textComponents.get(i);
+                    //creates alert dialog pop up to prompt user whether or not to add
                     AlertDialog.Builder addDialog = new AlertDialog.Builder(OcrCaptureActivity.this);
                     addDialog.setTitle("Add to To-Do List");
                     addDialog.setMessage("Would you like to add " + currentText.getValue() + " to your " +
                             "To-Do List, " + toDoListID + "?");
                     final String textString = currentText.getValue();
+                    //if user says yes, line is added to database
                     addDialog.setPositiveButton("YES",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which){

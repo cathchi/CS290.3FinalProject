@@ -15,11 +15,14 @@
  */
 package com.firebase.uidemo.todolist.OCR;
 
+import android.app.Activity;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v4.content.ContextCompat;
 
+import com.firebase.uidemo.R;
 import com.firebase.uidemo.todolist.OCR.camera.GraphicOverlay;
 import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
@@ -127,7 +130,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             rectL.bottom = translateY(rectL.bottom);
             // makes it magenta colored
             Paint linePaint = new Paint();
-            linePaint.setColor(Color.MAGENTA);
+            linePaint.setColor(Color.argb(255, 109, 213, 195));
             linePaint.setStyle(Paint.Style.STROKE);
             linePaint.setStrokeWidth(4.0f);
             canvas.drawRect(rectL, linePaint);
