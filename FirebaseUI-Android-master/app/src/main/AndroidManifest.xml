@@ -6,12 +6,14 @@
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-permission android:name="android.permission.CAMERA" />
-
-
+    
     <application
         android:name=".auth.LeakCatcher"
         android:allowBackup="true"
@@ -37,16 +39,16 @@
                 android:value="ocr" />
         </activity>
         <!-- ChatList -->
-        <activity android:name=".database.ChatListActivity"
+        <activity android:name=".chat.ChatListActivity"
             android:label="ChatList Activity"></activity>
 
-        <activity android:name=".database.ChatNewMessageActivity"
+        <activity android:name=".chat.ChatNewMessageActivity"
             android:label="Chat New Message Activity"></activity>
 
         <!-- Chat demo -->
         <activity
-            android:name=".database.ChatActivity"
-            android:parentActivityName=".database.ChatListActivity"
+            android:name=".chat.ChatActivity"
+            android:parentActivityName=".chat.ChatListActivity"
             android:label="@string/name_chat"/>
 
         <!-- Auth UI demo -->
@@ -74,6 +76,17 @@
 
         <!-- OCR Text Recognition activity -->
         <activity android:name=".todolist.OCR.OcrCaptureActivity"/>
+
+        <!-- Camera Activity -->
+        <activity android:name=".auth.CameraActivity">
+            <!-- configure this activity to use landscape orientation -->
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
+
 
 </manifest>
