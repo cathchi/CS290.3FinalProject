@@ -30,6 +30,10 @@ import java.util.List;
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
  * overlay view.
  */
+
+/*
+Edited by Jasmine Lu 4/20/2017
+ */
 public class OcrGraphic extends GraphicOverlay.Graphic {
 
     private int mId;
@@ -115,6 +119,18 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             float left = translateX(currentText.getBoundingBox().left);
             float bottom = translateY(currentText.getBoundingBox().bottom);
             canvas.drawText(currentText.getValue(), left, bottom, sTextPaint);
+            // creates a bounding box for each line of text
+            RectF rectL = new RectF(currentText.getBoundingBox());
+            rectL.left = translateX(rectL.left);
+            rectL.top = translateY(rectL.top);
+            rectL.right = translateX(rectL.right);
+            rectL.bottom = translateY(rectL.bottom);
+            // makes it magenta colored
+            Paint linePaint = new Paint();
+            linePaint.setColor(Color.MAGENTA);
+            linePaint.setStyle(Paint.Style.STROKE);
+            linePaint.setStrokeWidth(4.0f);
+            canvas.drawRect(rectL, linePaint);
         }
     }
 }
