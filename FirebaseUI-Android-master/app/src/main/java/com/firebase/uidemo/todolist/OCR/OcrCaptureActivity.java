@@ -125,7 +125,13 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         scaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
         Snackbar.make(mGraphicOverlay, "Tap to Add to To-Do List. Pinch/Stretch to zoom",
-                Snackbar.LENGTH_LONG)
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction("DONE", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                })
                 .show();
 
         Bundle b = getIntent().getExtras();
