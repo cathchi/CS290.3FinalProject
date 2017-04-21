@@ -130,7 +130,7 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             rectL.bottom = translateY(rectL.bottom);
             // makes it magenta colored
             Paint linePaint = new Paint();
-            linePaint.setColor(Color.argb(255, 109, 213, 195));
+            linePaint.setColor(Color.argb(100, 109, 213, 195));
             linePaint.setStyle(Paint.Style.STROKE);
             linePaint.setStrokeWidth(4.0f);
             canvas.drawRect(rectL, linePaint);
