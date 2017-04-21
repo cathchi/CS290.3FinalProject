@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.todolist.OCR.OcrCaptureActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -113,6 +114,7 @@ public class ToDoListActivity extends AppCompatActivity {
         // Add items via the Button and EditText at the bottom of the window.
         final EditText text = (EditText) findViewById(R.id.todoText);
         final Button button = (Button) findViewById(R.id.addButton);
+        final Button ocr_button = (Button) findViewById(R.id.OCRButton);
 
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -126,6 +128,15 @@ public class ToDoListActivity extends AppCompatActivity {
                 Log.d("TASKVALUE", text.getText().toString());
                 childRef.child("notes").setValue("");
                 childRef.child("assign").setValue("");
+            }
+        });
+
+        ocr_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ToDoListActivity.this, OcrCaptureActivity.class);
+                i.putExtra("toDoListID", childname);
+                startActivity(i);
             }
         });
 
