@@ -34,8 +34,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.uidemo.R;
-import com.firebase.uidemo.database.ChatActivity;
-import com.firebase.uidemo.database.ChatListActivity;
+import com.firebase.uidemo.chat.ChatListActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -139,7 +138,7 @@ public class SignedInActivity extends AppCompatActivity {
                 });
     }
 
-    @OnClick(R.id.delete_account)
+    //@OnClick(R.id.delete_account)
     public void deleteAccountClicked() {
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -154,6 +153,12 @@ public class SignedInActivity extends AppCompatActivity {
                 .create();
 
         dialog.show();
+    }
+
+    @OnClick(R.id.go_to_camera)
+    public void goToCameraActivity(){
+        Intent goToCamera = new Intent(getApplicationContext(), CameraActivity.class);
+        startActivity(goToCamera);
     }
 
     private void deleteAccount() {

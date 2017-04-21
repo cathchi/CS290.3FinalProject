@@ -1,4 +1,4 @@
-package com.firebase.uidemo.database;
+package com.firebase.uidemo.chat;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -22,6 +22,7 @@ public class ChatHistoryDBHelper extends SQLiteOpenHelper {
                     ChatContract.ChatHistory.COLUMN_NAME_UID + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_MESSAGES + " TEXT," +
+                    ChatContract.ChatHistory.COLUMN_NAME_MESSAGETYPE + " STRING," +
                     ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP + " LONG)";
 
     private static final String SQL_DELETE_CHATHISTORY_TABLE =
