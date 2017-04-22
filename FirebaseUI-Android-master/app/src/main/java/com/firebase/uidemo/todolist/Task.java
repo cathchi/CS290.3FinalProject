@@ -11,15 +11,17 @@ public class Task {
     private String notes;
     private String id;
     private String taskid;
+    private String location;
 
     public Task(){
 
     }
 
-    public Task(String title, String notes, String taskid){
+    public Task(String title, String notes, String taskid, String location){
         taskTitle = (title == null) ? "" : title;
         this.notes = (notes == null) ? "" : notes;
         this.taskid = taskid;
+        this.location = (location == null) ? "" : location;
     }
 
     public void setTaskTitle(String title){
@@ -52,10 +54,21 @@ public class Task {
 
     public String getTaskid() {return taskid;}
 
-    public boolean checkUpdates (String title, String notes) {
+    public boolean checkUpdates (String title, String notes, String location) {
         Log.d("TASK", "title: " + this.taskTitle + "notes: " + this.notes);
+        if(!this.taskTitle.equals(title) || !this.notes.equals(notes) || !this.location.equals(location))
+            return true;
+        return false;
+    }
+
+    public boolean checkUpdates (String title, String notes) {
         if(!this.taskTitle.equals(title) || !this.notes.equals(notes))
             return true;
         return false;
     }
+
+
+    public String getLocation() {return location; }
+
+    public void setLocation(String location) {this.location= location; }
 }
