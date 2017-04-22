@@ -32,6 +32,7 @@ public class TaskEditActivity extends Activity {
     public static final int LOCATION_REQUEST = 0;
     private DatabaseReference myRef;
     private TextView addressText;
+    private String mLat, mLong, mPlace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +65,12 @@ public class TaskEditActivity extends Activity {
                         notesEdit.setText(dataSnapshot.child("notes").getValue(String.class));
                     if (dataSnapshot.child("assign").getValue() != null)
                         assignEdit.setText(dataSnapshot.child("assign").getValue(String.class));
-                    if (dataSnapshot.child("location").child("place").getValue() != null)
+                    if (dataSnapshot.child("location").child("place").getValue() != null) {
                         addressText.setText(dataSnapshot.child("location").child("place").getValue(String.class));
+                        mLat = dataSnapshot.child("location").child("lat").getValue(String.class);
+                        mLong = dataSnapshot.child("location").child("long").getValue(String.class);
+                        mPlace = dataSnapshot.child("location").child("place").getValue(String.class);
+                    }
                 }
             }
 
@@ -91,6 +96,9 @@ public class TaskEditActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(TaskEditActivity.this, PlaceActivity.class);
+                i.putExtra("lat", mLat);
+                i.putExtra("long", mLong);
+                i.putExtra("place", mPlace);
                 startActivityForResult(i,LOCATION_REQUEST);
             }
         });

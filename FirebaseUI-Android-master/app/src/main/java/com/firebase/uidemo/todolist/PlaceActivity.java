@@ -44,9 +44,10 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mGoogleMap;
     private Place curPlace;
+    private String curPlaceName;
     private Marker curDestMarker;
     private Button chooserButton;
-    private Context context;
+    private boolean existing;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,9 +58,26 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         setUpGoogleMapAndPlaces();
     }
 
+    private boolean placeExistingLocation() {
+        Intent i = getIntent();
+        String mLat = i.getStringExtra("lat");
+        String mLong = i.getStringExtra("long");
+        String mPlace = i.getStringExtra("place");
+        if(!mLat.equals("") && !mLong.equals("")) {
+            LatLng mLL = new LatLng(Double.parseDouble(mLat),Double.parseDouble(mLong));
+            curDestMarker = mGoogleMap.addMarker(new MarkerOptions().position(mLL).title(mPlace));
+            curPlaceName = mPlace;
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mLL));
+            mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
+            fillChooserButton();
+            return true;
+        }
+        return false;
+    }
+
     private void setUpChooserButton() {
         chooserButton = (Button) findViewById(R.id.placeChooserButton);
-        if(curPlace == null) {
+        if(curPlaceName == null) {
             chooserButton.setText("Choose No Location");
         }
         else {
@@ -88,7 +106,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     }
 
     private void fillChooserButton() {
-        String text = String.format("Set %s as your task location", curPlace.getName());
+        String text = String.format("Set %s as your task location", curPlaceName);
         chooserButton.setText(text);
     }
 
@@ -114,8 +132,11 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
                     curDestMarker.remove();
                 }
                 curPlace = place;
+                curPlaceName = place.getName().toString();
                 fillChooserButton();
-                curDestMarker = mGoogleMap.addMarker(new MarkerOptions().position(placeLoc).title(place.getName().toString()));
+                curDestMarker = mGoogleMap.addMarker(new MarkerOptions().position(placeLoc).title(curPlaceName));
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(placeLoc));
+                mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
                 // TODO: Get info about the selected place.
                 Log.i("", "Place: " + place.getName());
             }
@@ -143,6 +164,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+        existing = placeExistingLocation();
     }
 
     @Override
@@ -174,8 +196,10 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         double curLong = location.getLongitude();
         LatLng curLoc = new LatLng(curLat, curLong);
         mGoogleMap.addCircle(new CircleOptions().center(curLoc).radius(100).fillColor(Color.BLUE));
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(curLoc));
-        mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
+        if(!existing) {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(curLoc));
+            mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
+        }
         Log.d(TAG, "Circle added");
     }
 
