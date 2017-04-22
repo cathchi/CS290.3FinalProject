@@ -63,8 +63,8 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         String mLat = i.getStringExtra("lat");
         String mLong = i.getStringExtra("long");
         String mPlace = i.getStringExtra("place");
-        if(!mLat.equals("") && !mLong.equals("")) {
-            LatLng mLL = new LatLng(Double.parseDouble(mLat),Double.parseDouble(mLong));
+        if (mLat != null && mLong != null && !mLat.equals("") && !mLong.equals("")) {
+            LatLng mLL = new LatLng(Double.parseDouble(mLat), Double.parseDouble(mLong));
             curDestMarker = mGoogleMap.addMarker(new MarkerOptions().position(mLL).title(mPlace));
             curPlaceName = mPlace;
             mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mLL));
@@ -77,10 +77,9 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
 
     private void setUpChooserButton() {
         chooserButton = (Button) findViewById(R.id.placeChooserButton);
-        if(curPlaceName == null) {
+        if (curPlaceName == null) {
             chooserButton.setText("Choose No Location");
-        }
-        else {
+        } else {
             fillChooserButton();
         }
 
@@ -88,16 +87,15 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
             @Override
             public void onClick(View v) {
                 Intent returnIntent = new Intent();
-                if(curPlace != null) {
-                    String destAddress = (String)curPlace.getAddress();
+                if (curPlace != null) {
+                    String destAddress = (String) curPlace.getAddress();
                     returnIntent.putExtra("address", destAddress);
-                    returnIntent.putExtra("place",(String)curPlace.getName());
+                    returnIntent.putExtra("place", (String) curPlace.getName());
                     LatLng ll = curPlace.getLatLng();
-                    returnIntent.putExtra("lat",Double.toString(ll.latitude));
-                    returnIntent.putExtra("long",Double.toString(ll.longitude));
-                    setResult(RESULT_OK,returnIntent);
-                }
-                else {
+                    returnIntent.putExtra("lat", Double.toString(ll.latitude));
+                    returnIntent.putExtra("long", Double.toString(ll.longitude));
+                    setResult(RESULT_OK, returnIntent);
+                } else {
                     setResult(RESULT_CANCELED, returnIntent);
                 }
                 finish();
@@ -128,7 +126,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
             @Override
             public void onPlaceSelected(Place place) {
                 LatLng placeLoc = place.getLatLng();
-                if(curDestMarker != null) {
+                if (curDestMarker != null) {
                     curDestMarker.remove();
                 }
                 curPlace = place;
@@ -173,34 +171,32 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             ActivityCompat.requestPermissions(PlaceActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1600);
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             Log.i(TAG, "no permission");
             // TODO: handle case where user doesn't grant permission
             return;
         }
+
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (location == null) {
             Log.i(TAG, "location null");
+            handleLocation(null);
         } else {
             handleLocation(location);
         }
     }
 
     private void handleLocation(Location location) {
-        double curLat = location.getLatitude();
-        double curLong = location.getLongitude();
-        LatLng curLoc = new LatLng(curLat, curLong);
-        mGoogleMap.addCircle(new CircleOptions().center(curLoc).radius(100).fillColor(Color.BLUE));
-        if(!existing) {
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(curLoc));
-            mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
+        if(location != null) {
+            double curLat = location.getLatitude();
+            double curLong = location.getLongitude();
+            LatLng curLoc = new LatLng(curLat, curLong);
+            mGoogleMap.addCircle(new CircleOptions().center(curLoc).radius(100).fillColor(Color.BLUE));
+            if (!existing) {
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(curLoc));
+                mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
+            }
+            Log.d(TAG, "Circle added");
         }
-        Log.d(TAG, "Circle added");
     }
 
     @Override
@@ -210,14 +206,14 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
 
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         mGoogleApiClient.connect();
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }

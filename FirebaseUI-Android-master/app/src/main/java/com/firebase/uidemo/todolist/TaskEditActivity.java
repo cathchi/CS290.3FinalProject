@@ -109,12 +109,14 @@ public class TaskEditActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("ResultA", Integer.toString(resultCode));
         if(resultCode == Activity.RESULT_OK){
-            String place = data.getStringExtra("place");
-            myRef.child("location").child("place").setValue(place);
-            myRef.child("location").child("long").setValue(data.getStringExtra("long"));
-            myRef.child("location").child("lat").setValue(data.getStringExtra("lat"));
+            mPlace = data.getStringExtra("place");
+            mLong = data.getStringExtra("long");
+            mLat = data.getStringExtra("lat");
+            myRef.child("location").child("place").setValue(mPlace);
+            myRef.child("location").child("long").setValue(mLong);
+            myRef.child("location").child("lat").setValue(data.getStringExtra(mLat));
             myRef.child("location").child("address").setValue(data.getStringExtra("address"));
-            addressText.setText(place);
+            addressText.setText(mPlace);
             Log.d("TaskEditActivity", "address set");
         }
         super.onActivityResult(requestCode, resultCode, data);
