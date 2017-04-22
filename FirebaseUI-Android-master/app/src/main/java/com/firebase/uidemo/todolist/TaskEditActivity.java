@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.firebase.uidemo.R;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -28,6 +29,10 @@ import com.google.firebase.database.ValueEventListener;
  */
 
 public class TaskEditActivity extends Activity {
+    public static final int LOCATION_REQUEST = 0;
+    private DatabaseReference myRef;
+    private TextView addressText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,12 +46,14 @@ public class TaskEditActivity extends Activity {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
-        final DatabaseReference myRef= database.getReference()
+        myRef= database.getReference()
                 .child("users").child(mUid).child("todolists").child(toDoListID).child(taskID);
 
         final EditText taskEdit = (EditText) findViewById(R.id.taskNameEdit);
         final EditText notesEdit = (EditText) findViewById(R.id.notesEdit);
         final EditText assignEdit = (EditText) findViewById(R.id.assignEdit);
+
+        addressText = (TextView) findViewById(R.id.locationEdit);
 
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -57,6 +64,8 @@ public class TaskEditActivity extends Activity {
                         notesEdit.setText(dataSnapshot.child("notes").getValue(String.class));
                     if (dataSnapshot.child("assign").getValue() != null)
                         assignEdit.setText(dataSnapshot.child("assign").getValue(String.class));
+                    if (dataSnapshot.child("location").child("place").getValue() != null)
+                        addressText.setText(dataSnapshot.child("location").child("place").getValue(String.class));
                 }
             }
 
@@ -78,47 +87,30 @@ public class TaskEditActivity extends Activity {
             }
         });
 
-        final Button place = (Button) findViewById(R.id.placeButton);
-        place.setOnClickListener(new View.OnClickListener() {
+        addressText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(TaskEditActivity.this, PlaceActivity.class);
-                startActivity(i);
+                startActivityForResult(i,LOCATION_REQUEST);
             }
-
         });
 
     }
-    /*
-    int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
-    public void onPlaceClick(View v) {
-
-        try {
-            Intent intent =
-                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                            .build(this);
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
-            // TODO: Handle the error.
-        } catch (GooglePlayServicesNotAvailableException e) {
-            // TODO: Handle the error.
-        }
-    }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Place place = PlaceAutocomplete.getPlace(this, data);
-                Log.i("Activity Result", "Place: " + place.getName());
-            } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
-                Status status = PlaceAutocomplete.getStatus(this, data);
-                // TODO: Handle the error.
-                Log.i("Activity Result", status.getStatusMessage());
-
-            } else if (resultCode == RESULT_CANCELED) {
-                // The user canceled the operation.
-            }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("ResultA", Integer.toString(resultCode));
+        if(resultCode == Activity.RESULT_OK){
+            String place = data.getStringExtra("place");
+            myRef.child("location").child("place").setValue(place);
+            myRef.child("location").child("long").setValue(data.getStringExtra("long"));
+            myRef.child("location").child("lat").setValue(data.getStringExtra("lat"));
+            myRef.child("location").child("address").setValue(data.getStringExtra("address"));
+            addressText.setText(place);
+            Log.d("TaskEditActivity", "address set");
         }
-    }*/
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
 }
