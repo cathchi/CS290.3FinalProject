@@ -99,6 +99,7 @@ public class TaskEditActivity extends Activity {
                 i.putExtra("lat", mLat);
                 i.putExtra("long", mLong);
                 i.putExtra("place", mPlace);
+                Log.d("TaskEditActivity", mLat + " " + mLong + " " + mPlace);
                 startActivityForResult(i,LOCATION_REQUEST);
             }
         });
@@ -108,18 +109,20 @@ public class TaskEditActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("ResultA", Integer.toString(resultCode));
-        if(resultCode == Activity.RESULT_OK){
-            mPlace = data.getStringExtra("place");
-            mLong = data.getStringExtra("long");
-            mLat = data.getStringExtra("lat");
-            myRef.child("location").child("place").setValue(mPlace);
-            myRef.child("location").child("long").setValue(mLong);
-            myRef.child("location").child("lat").setValue(data.getStringExtra(mLat));
-            myRef.child("location").child("address").setValue(data.getStringExtra("address"));
-            addressText.setText(mPlace);
-            Log.d("TaskEditActivity", "address set");
-        }
         super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == LOCATION_REQUEST) {
+            if(resultCode == Activity.RESULT_OK){
+                mPlace = data.getStringExtra("place");
+                mLong = data.getStringExtra("long");
+                mLat = data.getStringExtra("lat");
+                myRef.child("location").child("place").setValue(mPlace);
+                myRef.child("location").child("long").setValue(mLong);
+                myRef.child("location").child("lat").setValue(mLat);
+                myRef.child("location").child("address").setValue(data.getStringExtra("address"));
+                addressText.setText(mPlace);
+                Log.d("TaskEditActivity", "address set");
+            }
+        }
     }
 
 
