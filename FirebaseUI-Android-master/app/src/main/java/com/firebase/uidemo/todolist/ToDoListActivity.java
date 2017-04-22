@@ -67,9 +67,6 @@ public class ToDoListActivity extends AppCompatActivity {
         myRef= database.getReference()
                 .child("users").child(mUid).child("todolists").child(childname);
 
-        // Get a reference to the todoItems child items it the database
-        //final DatabaseReference myRef = database.getReference("todoItems");
-
         // Assign a listener to detect changes to the child items
         // of the database reference.
         mChildListener = new ChildEventListener(){
@@ -82,7 +79,8 @@ public class ToDoListActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 String value = dataSnapshot.child("task").getValue(String.class);
                 String notes = dataSnapshot.child("notes").getValue(String.class);
-                Task newtask = new Task(value, notes, dataSnapshot.getKey());
+                String location = dataSnapshot.child("location").child("place").getValue(String.class);
+                Task newtask = new Task(value, notes, dataSnapshot.getKey(),location);
                 tasks.put(dataSnapshot.getKey(), newtask);
                 adapter.add(newtask);
             }
@@ -126,6 +124,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 Log.d("TASKVALUE", text.getText().toString());
                 childRef.child("notes").setValue("");
                 childRef.child("assign").setValue("");
+                childRef.child("location").child("place").setValue("");
             }
         });
 
@@ -145,6 +144,8 @@ public class ToDoListActivity extends AppCompatActivity {
                 notesSection.setText("Notes:");
                 final TextView assignSection = (TextView) dView.findViewById(R.id.assign);
                 assignSection.setText("Assigned to: ");
+                final TextView locationSection = (TextView) dView.findViewById(R.id.location);
+                locationSection.setText("Location: ");
                 final int posIndex = position;
                 adb.setPositiveButton("Edit", new DialogInterface.OnClickListener(){
                     @Override
@@ -184,6 +185,10 @@ public class ToDoListActivity extends AppCompatActivity {
                                 assignSection.setText("Assigned to: " + dataSnapshot.child("assign").getValue().toString());
                             else
                                 assignSection.setText("Assigned to: ");
+                            if(dataSnapshot.child("location").getValue() != null)
+                                locationSection.setText("Location: " + dataSnapshot.child("location").child("place").getValue().toString());
+                            else
+                                locationSection.setText("Location: ");
                         }
                     }
 
@@ -213,10 +218,12 @@ public class ToDoListActivity extends AppCompatActivity {
                     if(oldTask != null) {
                         String taskname = taskid.child("task").getValue(String.class);
                         String tasknotes = taskid.child("notes").getValue(String.class);
+                        //String address = taskid.child("location").child("place").getValue(String.class);
                         boolean needsUpdate = oldTask.checkUpdates(taskname, tasknotes);
                         if(needsUpdate) {
                             oldTask.setTaskTitle(taskid.child("task").getValue(String.class));
                             oldTask.setNotes(taskid.child("notes").getValue(String.class));
+                            //oldTask.setLocation(taskid.child("location").child("place").getValue(String.class));
                             adapter.remove(oldTask);
                             adapter.insert(oldTask, pos);
                         }
