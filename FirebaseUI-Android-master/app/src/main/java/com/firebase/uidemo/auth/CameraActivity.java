@@ -9,6 +9,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import android.Manifest;
@@ -20,6 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import butterknife.OnClick;
 
 import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
@@ -35,6 +39,7 @@ public class CameraActivity extends AppCompatActivity {
     private Camera mCamera;
     private CameraPreview mPreview;
     private String TAG = "CameraActivity";
+    Button captureButton;
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
 
         @Override
@@ -45,6 +50,8 @@ public class CameraActivity extends AppCompatActivity {
                 Log.d(TAG, "Error creating media file, check storage permissions: ");
                 return;
             }
+
+
 
             try {
                 FileOutputStream fos = new FileOutputStream(pictureFile);
@@ -58,10 +65,28 @@ public class CameraActivity extends AppCompatActivity {
         }
     };
 
+    @OnClick(R.id.button_capture)
+    public void capturePicture(View v){
+        Log.d("CameraActivity", "Taking picture");
+        mCamera.takePicture(null, null, mPicture);
+        captureButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // get an image from the camera
+                        return;
+                    }
+                }
+        );
+        getOutputMediaFile(MEDIA_TYPE_IMAGE);
+        Log.d("CameraActivity", "Finished taking picture");
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        captureButton = (Button) findViewById(R.id.button_capture);
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA);
         if(permissionCheck != PackageManager.PERMISSION_GRANTED){
@@ -104,6 +129,15 @@ public class CameraActivity extends AppCompatActivity {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
+                    captureButton.setOnClickListener(
+                            new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    // get an image from the camera
+                                    return;
+                                }
+                            }
+                    );
                 }
                 return;
             }
