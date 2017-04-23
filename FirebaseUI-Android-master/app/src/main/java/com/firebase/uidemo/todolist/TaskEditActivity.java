@@ -8,8 +8,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.firebase.uidemo.R;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -23,6 +29,11 @@ import com.google.firebase.database.ValueEventListener;
  */
 
 public class TaskEditActivity extends Activity {
+    public static final int LOCATION_REQUEST = 0;
+    private DatabaseReference myRef;
+    private TextView addressText;
+    private String mLat, mLong, mPlace;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,12 +47,14 @@ public class TaskEditActivity extends Activity {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
-        final DatabaseReference myRef= database.getReference()
+        myRef= database.getReference()
                 .child("users").child(mUid).child("todolists").child(toDoListID).child(taskID);
 
         final EditText taskEdit = (EditText) findViewById(R.id.taskNameEdit);
         final EditText notesEdit = (EditText) findViewById(R.id.notesEdit);
         final EditText assignEdit = (EditText) findViewById(R.id.assignEdit);
+
+        addressText = (TextView) findViewById(R.id.locationEdit);
 
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -52,6 +65,12 @@ public class TaskEditActivity extends Activity {
                         notesEdit.setText(dataSnapshot.child("notes").getValue(String.class));
                     if (dataSnapshot.child("assign").getValue() != null)
                         assignEdit.setText(dataSnapshot.child("assign").getValue(String.class));
+                    if (dataSnapshot.child("location").child("place").getValue() != null) {
+                        addressText.setText(dataSnapshot.child("location").child("place").getValue(String.class));
+                        mLat = dataSnapshot.child("location").child("lat").getValue(String.class);
+                        mLong = dataSnapshot.child("location").child("long").getValue(String.class);
+                        mPlace = dataSnapshot.child("location").child("place").getValue(String.class);
+                    }
                 }
             }
 
@@ -72,5 +91,39 @@ public class TaskEditActivity extends Activity {
                 finish();
             }
         });
+
+        addressText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(TaskEditActivity.this, PlaceActivity.class);
+                i.putExtra("lat", mLat);
+                i.putExtra("long", mLong);
+                i.putExtra("place", mPlace);
+                Log.d("TaskEditActivity", mLat + " " + mLong + " " + mPlace);
+                startActivityForResult(i,LOCATION_REQUEST);
+            }
+        });
+
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("ResultA", Integer.toString(resultCode));
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == LOCATION_REQUEST) {
+            if(resultCode == Activity.RESULT_OK){
+                mPlace = data.getStringExtra("place");
+                mLong = data.getStringExtra("long");
+                mLat = data.getStringExtra("lat");
+                myRef.child("location").child("place").setValue(mPlace);
+                myRef.child("location").child("long").setValue(mLong);
+                myRef.child("location").child("lat").setValue(mLat);
+                myRef.child("location").child("address").setValue(data.getStringExtra("address"));
+                addressText.setText(mPlace);
+                Log.d("TaskEditActivity", "address set");
+            }
+        }
+    }
+
+
 }
