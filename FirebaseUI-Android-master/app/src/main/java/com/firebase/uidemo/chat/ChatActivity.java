@@ -97,12 +97,8 @@ public class ChatActivity extends AppCompatActivity
     private String mType;
 
     private FloatingActionButton audioButton;
-
-    private boolean firstDownload;
-
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     private static final int FILE_PATH_START = 20;
-    private static final int FILE_EXTENSION = 4;
     private static final String TEXT_MESSAGE = "text";
     private static final String AUDIO_MESSAGE = "audio";
     private static final String AUDIO_EXTENSION = ".3pg";
@@ -121,8 +117,6 @@ public class ChatActivity extends AppCompatActivity
 
         audioButton = (FloatingActionButton) findViewById(R.id.audioButton);
 
-        firstDownload = false;
-        //Log.d("MESSAGE", mChats.get(0).getMessage());
         mReceiverUID = getIntent().getStringExtra("UID");
         mReceiverName = getIntent().getStringExtra("NAME");
 
@@ -161,9 +155,7 @@ public class ChatActivity extends AppCompatActivity
         if (isSignedIn()) {
             attachRecyclerViewAdapter();
             readFromDatabase();
-            if (firstDownload) {
-                updateMessage();
-            }
+            updateMessage();
         } else {
             signInAnonymously();
         }
@@ -255,11 +247,9 @@ public class ChatActivity extends AppCompatActivity
                     cursor.getString(cursor.getColumnIndexOrThrow(ChatContract.ChatHistory.COLUMN_NAME_MESSAGETYPE)));
             int index = mChats.indexOf(chat);
             if (index < 0) {
-                if (chat.getType().equals("audio") && !chat.getUid().equals(mUID)
+                if (chat.getType().equals(AUDIO_MESSAGE) && !chat.getUid().equals(mUID)
                         && !fileExists(getExternalCacheDir().getAbsolutePath()
-                        //+ "/" + mReceiverUID
-                        + "/" +
-                        chat.getMessage().substring(FILE_PATH_START))) {
+                        + "/" + chat.getMessage().substring(FILE_PATH_START))) {
                     downloadRecording(chat.getMessage().substring(FILE_PATH_START));
                 }
                 mChats.add(chat);
@@ -270,7 +260,6 @@ public class ChatActivity extends AppCompatActivity
         }
         db.close();
         cursor.close();
-        firstDownload = true;
     }
 
     private void updateMessage() {
@@ -284,10 +273,8 @@ public class ChatActivity extends AppCompatActivity
                         (chat.getName().equals(mReceiverName) ||
                                 chat.getRName().equals(mReceiverName)) && index < 0) {
                     // add part of code where every single UID of the people is checked
-                    if (chat.getType().equals("audio") && !chat.getUid().equals(mUID)
-                            && !fileExists(getExternalCacheDir().getAbsolutePath()
-                            //+ "/" + mReceiverUID
-                            + "/" +
+                    if (chat.getType().equals(AUDIO_MESSAGE) && !chat.getUid().equals(mUID)
+                            && !fileExists(getExternalCacheDir().getAbsolutePath() + "/" +
                             chat.getMessage().substring(FILE_PATH_START))) {
                         downloadRecording(chat.getMessage().substring(FILE_PATH_START));
                     }
@@ -342,16 +329,21 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
-    private boolean fileExists(String s) {
-        File file = new File(s);
-        if (file == null || !file.exists()) return false;
-        return true;
-    }
-
     private boolean checkPermission() {
         int externalStorage = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
         int audio = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
         return externalStorage == PackageManager.PERMISSION_GRANTED && audio == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(ChatActivity.this, new
+                String[] { WRITE_EXTERNAL_STORAGE, RECORD_AUDIO }, REQUEST_RECORD_AUDIO_PERMISSION);
+    }
+
+    private boolean fileExists(String s) {
+        File file = new File(s);
+        if (file == null || !file.exists()) return false;
+        return true;
     }
 
     public void record(View view) {
@@ -368,7 +360,6 @@ public class ChatActivity extends AppCompatActivity
                 mFileName = getExternalCacheDir().getAbsolutePath();
                 mLastSegmentFileName = System.currentTimeMillis()+ AUDIO_EXTENSION;
                 mFileName += "/"
-                        //+ mUID + "/"
                         + mLastSegmentFileName;
                 startRecording();
             }
@@ -416,22 +407,6 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
-    private void requestPermission() {
-        ActivityCompat.requestPermissions(ChatActivity.this, new
-                String[] { WRITE_EXTERNAL_STORAGE, RECORD_AUDIO }, REQUEST_RECORD_AUDIO_PERMISSION);
-    }
-
-    public void send(View view) {
-        mMessage = mMessageEdit.getText().toString();
-        if (!mMessage.equals("")) {
-            Calendar calendar = Calendar.getInstance();
-            mDate = calendar.getTimeInMillis();
-            mType = TEXT_MESSAGE;
-            sendMessage();
-        }
-        mMessageEdit.setText("");
-    }
-
     private void sendMessage() {
         String name = mAuth.getCurrentUser().getDisplayName();
         mChat = new Chat(name, mReceiverName, mMessage, mUID, mReceiverUID, mDate, mType);
@@ -453,7 +428,7 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
-    private void storeStorage () {
+    private void storeStorage() {
         Uri file = Uri.fromFile(new File(mFileName));
         mUserStorageRef = mStorageRef.child(mUID).child(file.getLastPathSegment());
         UploadTask uploadTask = mUserStorageRef.putFile(file);
@@ -494,14 +469,8 @@ public class ChatActivity extends AppCompatActivity
     private void downloadRecording(String s) {
         mRecipientStorageRef = mStorageRef.child(mReceiverUID).child(s);
         File localFile;
-        //String recordingFileName = s.substring(0, s.length() - FILE_EXTENSION);
-        //Log.d("HEREHEREHERE", recordingFileName);
-        localFile = new File(getExternalCacheDir().getAbsolutePath() + "/"
-                //+ mReceiverUID + "/"
-                + s);
-//            localFile.deleteOnExit();
+        localFile = new File(getExternalCacheDir().getAbsolutePath() + "/" + s);
         mFileName = localFile.getAbsolutePath();
-        Log.d("FILENAMEFILENAME", mFileName);
         mRecipientStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
@@ -517,17 +486,9 @@ public class ChatActivity extends AppCompatActivity
 
     private void playRecording(int position) {
         mMediaPlayer = new MediaPlayer();
-        String extension;
-//        if (mChats.get(position).getUid().equals(mUID)) {
-//            extension = mUID;
-//        }
-//        else {
-//            extension = mReceiverUID;
-//        }
         mFileName = getExternalCacheDir().getAbsolutePath() + "/" +
                 //extension + "/" +
                 mChats.get(position).getMessage().substring(FILE_PATH_START);
-        Log.d("FILEFILEFILE", mFileName);
         try {
             mMediaPlayer.setDataSource(mFileName);
             mMediaPlayer.prepare();
@@ -545,5 +506,16 @@ public class ChatActivity extends AppCompatActivity
                 startPlaying = false;
             }
         });
+    }
+
+    public void send(View view) {
+        mMessage = mMessageEdit.getText().toString();
+        if (!mMessage.equals("")) {
+            Calendar calendar = Calendar.getInstance();
+            mDate = calendar.getTimeInMillis();
+            mType = TEXT_MESSAGE;
+            sendMessage();
+        }
+        mMessageEdit.setText("");
     }
 }
