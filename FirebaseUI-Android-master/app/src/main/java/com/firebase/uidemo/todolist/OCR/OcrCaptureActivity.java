@@ -379,6 +379,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                                     myTask.child("task").setValue(textString);
                                     myTask.child("notes").setValue("");
                                     myTask.child("assign").setValue("");
+                                    myTask.child("location").child("place").setValue("");
                                 }
                             });
                     addDialog.setNegativeButton("NO", null);

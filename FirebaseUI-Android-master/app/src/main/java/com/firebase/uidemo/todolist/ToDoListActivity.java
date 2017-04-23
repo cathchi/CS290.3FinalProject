@@ -127,6 +127,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 childRef.child("notes").setValue("");
                 childRef.child("assign").setValue("");
                 childRef.child("location").child("place").setValue("");
+                text.setText("");
             }
         });
 
