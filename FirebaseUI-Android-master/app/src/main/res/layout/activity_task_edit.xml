@@ -58,6 +58,24 @@
         android:layout_height="wrap_content"
         android:hint="List who is assigned to the task" />
 
+    <TextView
+        android:id="@+id/locationLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Location:"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:background="@color/tw__light_gray"/>
+
+    <TextView
+        android:id="@+id/locationEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        android:hint="Click to choose a location"
+        android:textColor="@color/tw__blue_pressed"/>
+
     <Button
         android:id="@+id/doneButton"
         android:layout_width="match_parent"
@@ -65,4 +83,5 @@
         android:layout_marginTop="40dp"
         android:layout_marginBottom="3dp"
         android:text="Done" />
+
 </LinearLayout>
