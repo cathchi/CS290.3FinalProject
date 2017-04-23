@@ -5,7 +5,7 @@
     <TextView
         android:id="@+id/taskTitle"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="wrap_content"
         android:scaleType="center"
         android:background="#FFFFBB33"
         android:textSize="30sp"
