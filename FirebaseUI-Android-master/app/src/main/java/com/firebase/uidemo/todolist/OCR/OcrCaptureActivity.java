@@ -37,6 +37,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -355,6 +356,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
      * @param rawY - the raw position of the tap.
      * @return true if the tap was on a TextBlock
      */
+    @SuppressWarnings("deprecation")
     private boolean onTap(float rawX, float rawY) {
         OcrGraphic graphic = mGraphicOverlay.getGraphicAtLocation(rawX, rawY);
         TextBlock text = null;
@@ -368,8 +370,14 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                     //creates alert dialog pop up to prompt user whether or not to add
                     AlertDialog.Builder addDialog = new AlertDialog.Builder(OcrCaptureActivity.this);
                     addDialog.setTitle("Add to To-Do List");
-                    addDialog.setMessage("Would you like to add " + currentText.getValue() + " to your " +
-                            "To-Do List, " + toDoListID + "?");
+                    String message = "Would you like to add " + "<b>" + currentText.getValue() +
+                            "</b>" +" to your " + "To-Do List, " +"<i>" + toDoListID + "</i>"+ "?";
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                        addDialog.setMessage(Html.fromHtml(message,Html.FROM_HTML_MODE_LEGACY));
+                    } else {
+                        addDialog.setMessage(Html.fromHtml(message));
+                    }
+                    //addDialog.setMessage(Html.fromHtml(message, Html.FROM_HTML_MODE_LEGACY));
                     final String textString = currentText.getValue();
                     //if user says yes, line is added to database
                     addDialog.setPositiveButton("YES",
