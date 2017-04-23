@@ -9,6 +9,7 @@ public class User {
     private String email;
     private String name;
     private String uid;
+    private String image;
 
     public User(){
 
@@ -26,6 +27,10 @@ public class User {
         this.uid = id;
     }
 
+    public void setImage(String image){
+        this.image = image;
+    }
+
     public String getName(){
         return name;
     }
@@ -36,6 +41,10 @@ public class User {
 
     public String getUid(){
         return uid;
+    }
+
+    public String getImage(){
+        return image;
     }
 
 }
