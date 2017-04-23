@@ -285,9 +285,7 @@ public class ChatActivity extends AppCompatActivity
                                 chat.getRName().equals(mReceiverName)) && index < 0) {
                     // add part of code where every single UID of the people is checked
                     if (chat.getType().equals("audio") && !chat.getUid().equals(mUID)
-                            && !fileExists(getExternalCacheDir().getAbsolutePath()
-                            //+ "/" + mReceiverUID
-                            + "/" +
+                            && !fileExists(getExternalCacheDir().getAbsolutePath() + "/" +
                             chat.getMessage().substring(FILE_PATH_START))) {
                         downloadRecording(chat.getMessage().substring(FILE_PATH_START));
                     }
@@ -368,7 +366,6 @@ public class ChatActivity extends AppCompatActivity
                 mFileName = getExternalCacheDir().getAbsolutePath();
                 mLastSegmentFileName = System.currentTimeMillis()+ AUDIO_EXTENSION;
                 mFileName += "/"
-                        //+ mUID + "/"
                         + mLastSegmentFileName;
                 startRecording();
             }
@@ -494,12 +491,7 @@ public class ChatActivity extends AppCompatActivity
     private void downloadRecording(String s) {
         mRecipientStorageRef = mStorageRef.child(mReceiverUID).child(s);
         File localFile;
-        //String recordingFileName = s.substring(0, s.length() - FILE_EXTENSION);
-        //Log.d("HEREHEREHERE", recordingFileName);
-        localFile = new File(getExternalCacheDir().getAbsolutePath() + "/"
-                //+ mReceiverUID + "/"
-                + s);
-//            localFile.deleteOnExit();
+        localFile = new File(getExternalCacheDir().getAbsolutePath() + "/" + s);
         mFileName = localFile.getAbsolutePath();
         Log.d("FILENAMEFILENAME", mFileName);
         mRecipientStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
@@ -517,13 +509,6 @@ public class ChatActivity extends AppCompatActivity
 
     private void playRecording(int position) {
         mMediaPlayer = new MediaPlayer();
-        String extension;
-//        if (mChats.get(position).getUid().equals(mUID)) {
-//            extension = mUID;
-//        }
-//        else {
-//            extension = mReceiverUID;
-//        }
         mFileName = getExternalCacheDir().getAbsolutePath() + "/" +
                 //extension + "/" +
                 mChats.get(position).getMessage().substring(FILE_PATH_START);
