@@ -132,7 +132,7 @@ public class SignedInActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String rawString = dataSnapshot.getValue(String.class);
-                Log.d("SignedInActivity", rawString);
+//                Log.d("SignedInActivity", rawString);
                 Glide.with(SignedInActivity.this)
                         .load(rawString)
                         .placeholder(R.drawable.firebase_auth_120dp)
