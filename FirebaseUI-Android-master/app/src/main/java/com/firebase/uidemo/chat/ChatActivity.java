@@ -110,6 +110,10 @@ public class ChatActivity extends AppCompatActivity
     private MediaRecorder mRecorder;
     private MediaPlayer mMediaPlayer;
 
+    /**
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -179,6 +183,9 @@ public class ChatActivity extends AppCompatActivity
         updateUI();
     }
 
+    /**
+     * adds RecyclerView for scrolling through messages
+     */
     private void attachRecyclerViewAdapter() {
 
         mAdapter = new ChatAdapter(this, mChats, mUID, this);
@@ -209,6 +216,9 @@ public class ChatActivity extends AppCompatActivity
         mMessageEdit.setEnabled(isSignedIn());
     }
 
+    /**
+     * queries Chats from SQLite database upon first load into the activity
+     */
     private void readFromDatabase() {
         ChatActivity.this.mDBHelper = new ChatHistoryDBHelper(getApplicationContext());
 
@@ -262,6 +272,9 @@ public class ChatActivity extends AppCompatActivity
         cursor.close();
     }
 
+    /**
+     *
+     */
     private void updateMessage() {
         mChatRef.addChildEventListener(new ChildEventListener() {
             @Override
