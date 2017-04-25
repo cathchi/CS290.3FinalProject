@@ -69,7 +69,7 @@ public class GoogleProvider implements IdpProvider, GoogleApiClient.OnConnection
     }
 
     private GoogleSignInOptions getSignInOptions(@Nullable String email) {
-        String clientId = mActivity.getString(R.string.default_web_client_id);
+        String clientId = "707821278688-jes4i4dldm12fogqolpffmu4pkf4nqmm.apps.googleusercontent.com";
 
         GoogleSignInOptions.Builder builder =
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

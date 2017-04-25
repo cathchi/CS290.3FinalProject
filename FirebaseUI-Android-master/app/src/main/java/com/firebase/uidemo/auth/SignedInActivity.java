@@ -17,6 +17,7 @@ package com.firebase.uidemo.auth;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -47,6 +48,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.util.Iterator;
 
@@ -57,6 +59,9 @@ import butterknife.OnClick;
 public class SignedInActivity extends AppCompatActivity {
     @BindView(android.R.id.content)
     View mRootView;
+
+    @BindView(R.id.start_image)
+    ImageView mStartImage;
 
     @BindView(R.id.user_profile_picture)
     ImageView mUserProfilePicture;
@@ -119,6 +124,27 @@ public class SignedInActivity extends AppCompatActivity {
 
             }
         });
+
+        final Gson gson = new Gson();
+        DatabaseReference userRef = mRef.child(mUid).child("image");
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String rawString = dataSnapshot.getValue(String.class);
+
+                Glide.with(SignedInActivity.this)
+                        .load(gson.fromJson(rawString, String.class))
+                        .placeholder(R.drawable.firebase_auth_120dp)
+                        .into(mStartImage);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     @OnClick(R.id.sign_out)
