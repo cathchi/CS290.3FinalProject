@@ -1,5 +1,7 @@
 package com.firebase.uidemo.auth;
 
+import android.net.Uri;
+
 /**
  * Created by JordanBurton on 4/4/17.
  */

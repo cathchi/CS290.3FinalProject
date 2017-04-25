@@ -21,7 +21,10 @@
             android:id="@+id/start_image"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            />
         <TextView
             style="@style/Base.TextAppearance.AppCompat.Headline"
             android:layout_width="wrap_content"
