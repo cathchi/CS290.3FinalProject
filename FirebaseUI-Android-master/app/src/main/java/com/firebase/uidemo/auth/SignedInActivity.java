@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -126,14 +127,14 @@ public class SignedInActivity extends AppCompatActivity {
         });
 
         final Gson gson = new Gson();
-        DatabaseReference userRef = mRef.child(mUid).child("image");
+        DatabaseReference userRef = mUser.child(mUid).child("image");
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String rawString = dataSnapshot.getValue(String.class);
-
+                Log.d("SignedInActivity", rawString);
                 Glide.with(SignedInActivity.this)
-                        .load(gson.fromJson(rawString, String.class))
+                        .load(rawString)
                         .placeholder(R.drawable.firebase_auth_120dp)
                         .into(mStartImage);
 
