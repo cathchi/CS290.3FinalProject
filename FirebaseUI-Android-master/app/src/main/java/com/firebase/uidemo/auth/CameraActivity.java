@@ -208,7 +208,7 @@ public class CameraActivity extends AppCompatActivity  {
     @Override
     protected void onPause() {
 
-                     // release the camera immediately on pause event
+        // release the camera immediately on pause event
         super.onPause();
         releaseCamera();
 
@@ -324,13 +324,16 @@ public class CameraActivity extends AppCompatActivity  {
         mImageRef.putFile(mFileUri).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                Gson gson = new Gson();
-                String json = gson.toJson(taskSnapshot.getDownloadUrl());
+                //Gson gson = new Gson();
+                //Log.d(TAG, "" + taskSnapshot.getDownloadUrl());
+                Uri mImage = taskSnapshot.getDownloadUrl();
+                //Log.d(TAG, "This is the json: " + json );
+                //Log.d(TAG, "From the json: " + gson.fromJson(json, String.class));
                 DatabaseReference mUser = mRef.child("users");
                 String mUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                mUser.child(mUid).child("image").setValue(json);
+                mUser.child(mUid).child("image").setValue(mImage.toString());
             }
         });
-        finish();
+        //finish();
     }
 }
