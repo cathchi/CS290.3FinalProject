@@ -8,7 +8,6 @@ public class Chat implements Comparable<Chat> {
     private String mUID;
     private String mRecipientUID;
     private String mRecipientName;
-    private ArrayList<String> mRecipientUIDs;
     private Long mTimeStamp;
     private String mType;
 
@@ -16,19 +15,16 @@ public class Chat implements Comparable<Chat> {
         // Needed for Firebase
     }
 
-//    public Chat(String name, String message, String uid) {
-//        mName = name;
-//        mMessage = message;
-//        mUid = uid;
-//    }
-
-//    public Chat(String name, String message, String uid, Long timestamp) {
-//        mName = name;
-//        mMessage = message;
-//        mUID = uid;
-//        mTimeStamp = timestamp;
-//    }
-
+    /**
+     * Chat Object constructor
+     * @param name = Name of sender
+     * @param rname = Name of recipient
+     * @param message = Message of chat
+     * @param uid = ID of sender
+     * @param ruid = ID of recipient
+     * @param timestamp = Time message sent
+     * @param type = Type of message
+     */
     public Chat(String name, String rname, String message, String uid, String ruid, Long timestamp, String type) {
         mName = name;
         mRecipientName = rname;
@@ -39,14 +35,11 @@ public class Chat implements Comparable<Chat> {
         mType = type;
     }
 
-//    public Chat(String name, String message, String uid, ArrayList<String> ruid, Long timestamp) {
-//        mName = name;
-//        mMessage = message;
-//        mUID = uid;
-//        mRecipientUIDs = ruid;
-//        mTimeStamp = timestamp;
-//    }
-
+    /**
+     *
+     * @param o = Chat object for comparison
+     * @return whether the Chat object being compared to is the same
+     */
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Chat)) return false;
@@ -89,10 +82,6 @@ public class Chat implements Comparable<Chat> {
     public String getRUID() { return mRecipientUID; }
 
     public void setRUID(String ruid) { mRecipientUID = ruid; }
-
-//    public ArrayList<String> getRUIDs() { return mRecipientUIDs; }
-
-    //public void setRUIDs(ArrayList<String> ruid) { mRecipientUIDs = ruid; }
 
     public Long getTimeStamp() { return mTimeStamp; }
 
