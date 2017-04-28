@@ -31,7 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 public class TaskEditActivity extends Activity {
     public static final int LOCATION_REQUEST = 0;
     private DatabaseReference myRef;
-    private TextView addressText;
+    private Button addressText;
     private String mLat, mLong, mPlace;
 
     @Override
@@ -54,7 +54,7 @@ public class TaskEditActivity extends Activity {
         final EditText notesEdit = (EditText) findViewById(R.id.notesEdit);
         final EditText assignEdit = (EditText) findViewById(R.id.assignEdit);
 
-        addressText = (TextView) findViewById(R.id.locationEdit);
+        addressText = (Button) findViewById(R.id.locationEdit);
 
         // Gets the details of a task from Firebase
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -83,9 +83,7 @@ public class TaskEditActivity extends Activity {
 
         final Button done = (Button) findViewById(R.id.doneButton);
 
-        /*
-        * saves edited task spaces in Firebase and brings you back to to the ToDoListActivity
-        */
+        //saves edited task spaces in Firebase and brings you back to to the ToDoListActivity
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,9 +95,8 @@ public class TaskEditActivity extends Activity {
         });
 
 
-        /**
-         * click the blue address text to open up a map so you can choose the location of your task
-         */
+
+        //click the blue address text to open up a map so you can choose the location of your task
         addressText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,8 +109,22 @@ public class TaskEditActivity extends Activity {
             }
         });
 
-    }
+        final Button clearLoc = (Button) findViewById(R.id.deleteLocationButton);
 
+        clearLoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlace = null;
+                mLong = null;
+                mLat = null;
+                myRef.child("location").child("place").setValue(mPlace);
+                myRef.child("location").child("long").setValue(mLong);
+                myRef.child("location").child("lat").setValue(mLat);
+                addressText.setText("");
+            }
+        });
+
+    }
 
     /**
      * Result from PlaceActivity
