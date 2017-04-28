@@ -14,6 +14,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -34,20 +35,26 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Katherine on 4/20/2017.
  */
 
-public class PlaceActivity extends FragmentActivity implements OnConnectionFailedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
+public class PlaceActivity extends FragmentActivity implements OnConnectionFailedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleMap.OnMarkerClickListener {
     private static final String TAG = "PlaceActivity";
+    private static final int FINE_LOCATION_PERMISSION = 1600;
+
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mGoogleMap;
-    private Place curPlace;
-    private String curPlaceName;
-    private Marker curDestMarker;
+
+    private Place mPlace;
+    private String mPlaceName, mChoice;
+    private Marker mPlaceMarker;
     private Button chooserButton;
-    private boolean existing;
+    private LatLng mLoc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,16 +67,16 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
 
     private boolean placeExistingLocation() {
         Intent i = getIntent();
-        String mLat = i.getStringExtra("lat");
-        String mLong = i.getStringExtra("long");
-        String mPlace = i.getStringExtra("place");
-        if (mLat != null && mLong != null && !mLat.equals("") && !mLong.equals("")) {
-            LatLng mLL = new LatLng(Double.parseDouble(mLat), Double.parseDouble(mLong));
-            curDestMarker = mGoogleMap.addMarker(new MarkerOptions().position(mLL).title(mPlace));
-            curPlaceName = mPlace;
-            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mLL));
+        String latitude = i.getStringExtra("lat");
+        String longitude = i.getStringExtra("long");
+        String place = i.getStringExtra("place");
+        if (latitude != null && longitude != null && !latitude.equals("") && !longitude.equals("")) {
+            LatLng latlong = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
+            mPlaceMarker = mGoogleMap.addMarker(new MarkerOptions().position(latlong).title(place));
+            mPlaceName = place;
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latlong));
             mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
-            fillChooserButton();
+            fillChooserButton(mPlaceName);
             return true;
         }
         return false;
@@ -77,25 +84,33 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
 
     private void setUpChooserButton() {
         chooserButton = (Button) findViewById(R.id.placeChooserButton);
-        if (curPlaceName == null) {
+        if (mPlaceName == null) {
             chooserButton.setText("Choose No Location");
         } else {
-            fillChooserButton();
+            fillChooserButton(mPlaceName);
         }
 
         chooserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d(TAG, mChoice);
                 Intent returnIntent = new Intent();
-                if (curPlace != null) {
-                    String destAddress = (String) curPlace.getAddress();
-                    returnIntent.putExtra("address", destAddress);
-                    returnIntent.putExtra("place", (String) curPlace.getName());
-                    LatLng ll = curPlace.getLatLng();
+                if(mChoice.equals("Current Position")) {
+                    Log.i(TAG, "current position chosen");
+                    returnIntent.putExtra("place", "Custom Place");
+                    Log.d(TAG, " " + mLoc.latitude + " " + mLoc.longitude);
+                    returnIntent.putExtra("lat", Double.toString(mLoc.latitude));
+                    returnIntent.putExtra("long", Double.toString(mLoc.longitude));
+                    setResult(RESULT_OK, returnIntent);
+                }
+                else if (mPlace != null) {
+                    returnIntent.putExtra("place", (String) mPlace.getName());
+                    LatLng ll = mPlace.getLatLng();
                     returnIntent.putExtra("lat", Double.toString(ll.latitude));
                     returnIntent.putExtra("long", Double.toString(ll.longitude));
                     setResult(RESULT_OK, returnIntent);
-                } else {
+                }
+                else {
                     setResult(RESULT_CANCELED, returnIntent);
                 }
                 finish();
@@ -103,9 +118,12 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         });
     }
 
-    private void fillChooserButton() {
-        String text = String.format("Set %s as your task location", curPlaceName);
+    private void fillChooserButton(String loc) {
+        String text = String.format("Set %s as your task location", loc);
         chooserButton.setText(text);
+        Log.d(TAG, loc);
+        mChoice = loc;
+
     }
 
     private void setUpGoogleMapAndPlaces() {
@@ -126,16 +144,23 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
             @Override
             public void onPlaceSelected(Place place) {
                 LatLng placeLoc = place.getLatLng();
-                if (curDestMarker != null) {
-                    curDestMarker.remove();
+                if (mPlaceMarker != null) {
+                    mPlaceMarker.remove();
                 }
-                curPlace = place;
-                curPlaceName = place.getName().toString();
-                fillChooserButton();
-                curDestMarker = mGoogleMap.addMarker(new MarkerOptions().position(placeLoc).title(curPlaceName));
+                mPlace = place;
+                mPlaceName = place.getName().toString();
+                fillChooserButton(mPlaceName);
+                mPlaceMarker = mGoogleMap.addMarker(new MarkerOptions().position(placeLoc).title(mPlaceName));
                 mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(placeLoc));
                 mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
-                // TODO: Get info about the selected place.
+                float[] results = new float[1];
+                if(mLoc != null) {
+                    Location.distanceBetween(mLoc.latitude, mLoc.longitude, placeLoc.latitude, placeLoc.longitude, results);
+                    float dist = results[0] / (float)1609.34;
+                    String distToast = String.format("%s is %.2f miles from your current location.", mPlaceName, dist);
+                    Toast.makeText(getApplicationContext(), distToast, Toast.LENGTH_LONG).show();
+                }
+
                 Log.i("", "Place: " + place.getName());
             }
 
@@ -162,26 +187,38 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        existing = placeExistingLocation();
+        mGoogleMap.setOnMarkerClickListener(this);
+        placeExistingLocation();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "Location services connected.");
+        getLocation();
+
+    }
+
+    public void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            ActivityCompat.requestPermissions(PlaceActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1600);
-            Log.i(TAG, "no permission");
-            // TODO: handle case where user doesn't grant permission
+            ActivityCompat.requestPermissions(PlaceActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION);
             return;
         }
 
         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (location == null) {
-            Log.i(TAG, "location null");
-            handleLocation(null);
-        } else {
-            handleLocation(location);
+        handleLocation(location);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case FINE_LOCATION_PERMISSION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getLocation();
+                }
+                return;
+            }
         }
     }
 
@@ -189,14 +226,26 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         if(location != null) {
             double curLat = location.getLatitude();
             double curLong = location.getLongitude();
-            LatLng curLoc = new LatLng(curLat, curLong);
-            mGoogleMap.addCircle(new CircleOptions().center(curLoc).radius(100).fillColor(Color.BLUE));
-            if (!existing) {
-                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(curLoc));
+            mLoc = new LatLng(curLat, curLong);
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(mLoc);
+            markerOptions.title("Current Position");
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+            mGoogleMap.addMarker(markerOptions);
+            if (mPlaceMarker == null) {
+                mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(mLoc));
                 mGoogleMap.moveCamera(CameraUpdateFactory.zoomTo(13));
             }
             Log.d(TAG, "Circle added");
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(final Marker marker) {
+        Log.i(TAG, "marker clicked" + marker.getTitle());
+        marker.showInfoWindow();
+        fillChooserButton(marker.getTitle());
+        return true;
     }
 
     @Override
