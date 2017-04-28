@@ -65,6 +65,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         setUpGoogleMapAndPlaces();
     }
 
+    // If the task already contained a location, this location is plotted on the map
     private boolean placeExistingLocation() {
         Intent i = getIntent();
         String latitude = i.getStringExtra("lat");
@@ -82,6 +83,9 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         return false;
     }
 
+    // Sets up the button for the user to confirm their location choice
+    // When the user presses this button, this activity finishes and passes the
+    // new location data to TaskEditActivity
     private void setUpChooserButton() {
         chooserButton = (Button) findViewById(R.id.placeChooserButton);
         if (mPlaceName == null) {
@@ -140,6 +144,9 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
 
+        // Handles when a place is selected
+        // If user's location is obtainable, calculates distance between current location and the chosen location
+        // Displays calculation as a Toast
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -198,6 +205,8 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
 
     }
 
+    // Checks and requests permissions to obtain the user's location
+    // Gets the user location if possible
     public void getLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(PlaceActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_PERMISSION);
@@ -222,6 +231,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         }
     }
 
+    // Adds a marker for the current location of the user
     private void handleLocation(Location location) {
         if(location != null) {
             double curLat = location.getLatitude();
@@ -240,6 +250,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         }
     }
 
+    // Changes the change location button to the location of the marker clicked
     @Override
     public boolean onMarkerClick(final Marker marker) {
         Log.i(TAG, "marker clicked" + marker.getTitle());

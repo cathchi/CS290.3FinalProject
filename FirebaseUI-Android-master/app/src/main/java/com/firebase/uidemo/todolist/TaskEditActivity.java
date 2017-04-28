@@ -56,6 +56,7 @@ public class TaskEditActivity extends Activity {
 
         addressText = (TextView) findViewById(R.id.locationEdit);
 
+        // Gets the details of a task from Firebase
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -82,6 +83,9 @@ public class TaskEditActivity extends Activity {
 
         final Button done = (Button) findViewById(R.id.doneButton);
 
+        /*
+        * saves edited task spaces in Firebase and brings you back to to the ToDoListActivity
+        */
         done.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +96,10 @@ public class TaskEditActivity extends Activity {
             }
         });
 
+
+        /**
+         * click the blue address text to open up a map so you can choose the location of your task
+         */
         addressText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,6 +114,12 @@ public class TaskEditActivity extends Activity {
 
     }
 
+
+    /**
+     * Result from PlaceActivity
+     * User chooses location or doesn't choose one
+     * Stores location (place name, latitude, and longitude) in Firebase
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("ResultA", Integer.toString(resultCode));
@@ -119,7 +133,6 @@ public class TaskEditActivity extends Activity {
                 myRef.child("location").child("long").setValue(mLong);
                 myRef.child("location").child("lat").setValue(mLat);
                 addressText.setText(mPlace);
-                Log.d("TaskEditActivity", "address set");
                 Log.d("TaskEditActivity", "lat: " + mLat + " long: " + mLong);
             }
         }
