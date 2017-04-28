@@ -118,9 +118,9 @@ public class TaskEditActivity extends Activity {
                 myRef.child("location").child("place").setValue(mPlace);
                 myRef.child("location").child("long").setValue(mLong);
                 myRef.child("location").child("lat").setValue(mLat);
-                myRef.child("location").child("address").setValue(data.getStringExtra("address"));
                 addressText.setText(mPlace);
                 Log.d("TaskEditActivity", "address set");
+                Log.d("TaskEditActivity", "lat: " + mLat + " long: " + mLong);
             }
         }
     }
