@@ -44,6 +44,7 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
         fillListView();
         addListsfromFB();
 
+        setTitle("Your To-Do Lists");
     }
 
     // gets all the to do lists from Firebase
