@@ -97,9 +97,8 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
         chooserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG, mChoice);
                 Intent returnIntent = new Intent();
-                if(mChoice.equals("Current Position")) {
+                if(mChoice != null && mChoice.equals("Current Position")) {
                     Log.i(TAG, "current position chosen");
                     returnIntent.putExtra("place", "Custom Place");
                     Log.d(TAG, " " + mLoc.latitude + " " + mLoc.longitude);
@@ -141,8 +140,9 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
                 .enableAutoManage(this, this)
                 .build();
 
-        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
+        final PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
                 getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+
 
         // Handles when a place is selected
         // If user's location is obtainable, calculates distance between current location and the chosen location

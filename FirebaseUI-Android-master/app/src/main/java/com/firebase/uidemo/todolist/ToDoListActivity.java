@@ -52,6 +52,7 @@ public class ToDoListActivity extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
         childname = b.getString("childid");
 
+        setTitle(childname);
         // Get ListView object from xml
         final ListView listView = (ListView) findViewById(R.id.listView);
 
