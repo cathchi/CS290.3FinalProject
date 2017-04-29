@@ -64,7 +64,11 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
                     Set<String> ids = td.keySet();
                     for(String id : ids) {
                         listids.add(id);
-                        listnames.add(dataSnapshot.child("lists").child(id).child("title").getValue().toString());
+                        DataSnapshot list = dataSnapshot.child("lists").child(id);
+                        if(list.child("users").child("1").getValue() != null)
+                            listnames.add("(SHARED) " + list.child("title").getValue().toString());
+                        else
+                            listnames.add(list.child("title").getValue().toString());
                     }
                 }
                 else {
