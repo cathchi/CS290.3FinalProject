@@ -15,6 +15,7 @@
 package com.firebase.uidemo.chat;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -29,6 +30,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +41,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.firebase.uidemo.R;
@@ -56,6 +59,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -67,7 +71,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -177,13 +184,72 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void goToSharedList() {
-        String text = String.format("Shared list with %s", mReceiverName);
-        NewListCreater create = new NewListCreater(text);
-        String newid = create.addToFirebase();
-        Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
-        i.putExtra("childid", newid);
-        i.putExtra("childname", text);
-        startActivity(i);
+        findExistingList();
+        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
+        alertDialogBuilder.setTitle("New List");
+        alertDialogBuilder.setMessage("Name this list: ");
+
+        final EditText et = new EditText(this.getApplicationContext());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        et.setLayoutParams(lp);
+        // set prompts.xml to alertdialog builder
+        alertDialogBuilder.setView(et);
+        alertDialogBuilder.setPositiveButton("OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        // create alert dialog
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+
+        // show it
+        alertDialog.show();
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String text = et.getText().toString();
+                Log.d("Got text", text);
+                if(!text.equals("")) {
+                    NewListCreater create = new NewListCreater(text);
+                    String newid = create.addSharedToFirebase(mReceiverUID);
+                    Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
+                    i.putExtra("childid", newid);
+                    i.putExtra("childname", text);
+                    startActivity(i);
+                    alertDialog.dismiss();
+                }
+            }
+        });
+    }
+
+    public void findExistingList() {
+        mMessageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("todolists").getValue();
+                if(td != null) {
+                    Set<String> ids = td.keySet();
+                    for(String id : ids) {
+                        DataSnapshot snap = dataSnapshot.child("todolists").child(id).child("shared");
+                        if(snap.getValue() != null) {
+                            if(snap.getValue().toString().equals(mReceiverUID)) {
+                                Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
+                                i.putExtra("childid", id);
+                                i.putExtra("childname", "blah");
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
