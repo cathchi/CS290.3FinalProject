@@ -67,8 +67,9 @@ public class ToDoListActivity extends AppCompatActivity {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
-        myRef= database.getReference()
-                .child("users").child(mUid).child("todolists").child(childid).child("tasks");
+        //myRef= database.getReference().child("users").child(mUid).child("todolists").child(childid).child("tasks");
+        myRef = database.getReference()
+                .child("lists").child(childid).child("tasks");
 
         // Assign a listener to detect changes to the child items
         // of the database reference.
