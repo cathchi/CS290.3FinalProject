@@ -1,7 +1,9 @@
 package com.firebase.uidemo.auth;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Camera;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
@@ -21,11 +23,14 @@ import static io.fabric.sdk.android.Fabric.TAG;
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
     private SurfaceHolder mHolder;
     private Camera mCamera;
+    private Context mContext;
+    public static final String ROTATION = "ROTATION";
+    private String TAG = "CameraPreview";
 
     public CameraPreview(Context context, Camera camera) {
         super(context);
         mCamera = camera;
-
+        mContext = context;
         // Install a SurfaceHolder.Callback so we get notified when the
         // underlying surface is created and destroyed.
         mHolder = getHolder();
@@ -71,32 +76,42 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         // start preview with new settings
         Camera.Parameters parameters = mCamera.getParameters();
         Display display = ((WindowManager)getContext().getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-
+        SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences.Editor prefsEditor = mPrefs.edit();
         if(display.getRotation() == Surface.ROTATION_0)
         {
+            prefsEditor.remove(ROTATION);
             parameters.setPreviewSize(h, w);
             mCamera.setDisplayOrientation(90);
+            prefsEditor.putInt(ROTATION, 270);
         }
 
         if(display.getRotation() == Surface.ROTATION_90)
         {
+            prefsEditor.remove(ROTATION);
             parameters.setPreviewSize(w, h);
             mCamera.setDisplayOrientation(0);
+            Log.d(TAG, "90 degree rotation");
+            prefsEditor.putInt(ROTATION, 0);
         }
 
         if(display.getRotation() == Surface.ROTATION_180)
         {
             parameters.setPreviewSize(h, w);
+            prefsEditor.remove(ROTATION);
         }
 
         if(display.getRotation() == Surface.ROTATION_270)
         {
+            prefsEditor.remove(ROTATION);
             parameters.setPreviewSize(w, h);
             mCamera.setDisplayOrientation(180);
+            Log.d(TAG, "270 degree rotation");
+            prefsEditor.putInt(ROTATION, 180);
         }
 
         //mCamera.setParameters(parameters);
-
+        prefsEditor.commit();
         try {
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();

@@ -29,14 +29,10 @@
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="ocr"/>
         <activity android:name=".ChooserActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts"/>
-            />
         </activity>
         <!-- ChatList -->
         <activity android:name=".chat.ChatListActivity"
@@ -80,12 +76,16 @@
         <!-- Camera Activity -->
         <activity android:name=".auth.CameraActivity">
             <!-- configure this activity to use landscape orientation -->
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
+
+        <!-- Sign In Activity -->
+        <activity android:name=".SignInActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        </activity>
+
         <activity
             android:name=".todolist.PlaceActivity"/>
         <meta-data
