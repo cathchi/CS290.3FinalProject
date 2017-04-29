@@ -273,6 +273,17 @@ public class ChooserActivity extends AppCompatActivity {
     public void signOut() {
         AuthUI.getInstance()
                 .signOut(this);
+        startActivity(new Intent(this, SignInActivity.class));
+        finish();
+    }
+
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        if(mAuth.getCurrentUser() == null){
+            startActivity(new Intent(this, SignInActivity.class));
+            finish();
+        }
     }
 
     @Override
