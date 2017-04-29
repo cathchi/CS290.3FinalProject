@@ -15,6 +15,7 @@
 package com.firebase.uidemo.chat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -32,12 +33,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.todolist.ListsActivity;
+import com.firebase.uidemo.todolist.NewListCreater;
+import com.firebase.uidemo.todolist.ToDoListActivity;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
 import com.firebase.uidemo.util.SignInResultNotifier;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -148,6 +155,35 @@ public class ChatActivity extends AppCompatActivity
         mMessages.setHasFixedSize(false);
         mMessages.setLayoutManager(mManager);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.chat_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.sharedList:
+                goToSharedList();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void goToSharedList() {
+        String text = String.format("Shared list with %s", mReceiverName);
+        NewListCreater create = new NewListCreater(text);
+        String newid = create.addToFirebase();
+        Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
+        i.putExtra("childid", newid);
+        i.putExtra("childname", text);
+        startActivity(i);
     }
 
     @Override
