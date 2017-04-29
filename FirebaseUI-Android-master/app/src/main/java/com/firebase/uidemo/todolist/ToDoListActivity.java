@@ -39,7 +39,7 @@ import java.util.Set;
 
 public class ToDoListActivity extends AppCompatActivity {
     private HashMap<String, Task> tasks = new HashMap<String, Task>();
-    private String childname;
+    private String childname, childid;
     private TaskAdapter adapter;
     private ChildEventListener mChildListener;
     private DatabaseReference myRef;
@@ -50,7 +50,8 @@ public class ToDoListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_todolist);
 
         Bundle b = getIntent().getExtras();
-        childname = b.getString("childid");
+        childname = b.getString("childname");
+        childid = b.getString("childid");
 
         setTitle(childname);
         // Get ListView object from xml
@@ -67,7 +68,7 @@ public class ToDoListActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
         myRef= database.getReference()
-                .child("users").child(mUid).child("todolists").child(childname);
+                .child("users").child(mUid).child("todolists").child(childid).child("tasks");
 
         // Assign a listener to detect changes to the child items
         // of the database reference.
@@ -136,7 +137,7 @@ public class ToDoListActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(ToDoListActivity.this, OcrCaptureActivity.class);
-                i.putExtra("toDoListID", childname);
+                i.putExtra("toDoListID", childid);
                 startActivity(i);
             }
         });
@@ -166,7 +167,7 @@ public class ToDoListActivity extends AppCompatActivity {
                         Intent i = new Intent(ToDoListActivity.this, TaskEditActivity.class);
                         String tid = adapter.getItem(posIndex).getTaskid();
                         i.putExtra("taskID", tid);
-                        i.putExtra("toDoListID", childname);
+                        i.putExtra("toDoListID", childid);
                         startActivity(i);
                     }
                 });//change to Edit`q
@@ -231,12 +232,10 @@ public class ToDoListActivity extends AppCompatActivity {
                     if(oldTask != null) {
                         String taskname = taskid.child("task").getValue(String.class);
                         String tasknotes = taskid.child("notes").getValue(String.class);
-                        //String address = taskid.child("location").child("place").getValue(String.class);
                         boolean needsUpdate = oldTask.checkUpdates(taskname, tasknotes);
                         if(needsUpdate) {
                             oldTask.setTaskTitle(taskid.child("task").getValue(String.class));
                             oldTask.setNotes(taskid.child("notes").getValue(String.class));
-                            //oldTask.setLocation(taskid.child("location").child("place").getValue(String.class));
                             adapter.remove(oldTask);
                             adapter.insert(oldTask, pos);
                         }

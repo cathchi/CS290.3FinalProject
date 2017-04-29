@@ -35,6 +35,7 @@ import java.util.Set;
 
 public class ListsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private List<String> listnames = new ArrayList<>();
+    private List<String> listids = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,10 +64,14 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
                 Map<String, Object> td = (HashMap<String,Object>) dataSnapshot.getValue();
                 if(td != null) {
                     Set<String> ids = td.keySet();
-                    listnames = new ArrayList(ids);
+                    for(String id : ids) {
+                        listids.add(id);
+                        listnames.add(dataSnapshot.child(id).child("title").getValue().toString());
+                    }
                 }
                 else {
                     listnames = new ArrayList<>();
+                    listids = new ArrayList<>();
                 }
                 fillListView();
                 Log.d("names number", listnames.size()+"");
@@ -94,13 +99,14 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        startListActivity(listnames.get(position));
+        startListActivity(listids.get(position), listnames.get(position));
     }
 
     // starts new activity
-    private void startListActivity(String id) {
+    private void startListActivity(String id, String name) {
         Intent i = new Intent(ListsActivity.this, ToDoListActivity.class);
         i.putExtra("childid", id);
+        i.putExtra("childname", name);
         startActivity(i);
     }
 
@@ -108,7 +114,6 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
     // uses AlertDialog and EditText to allow user to enter a name for the to-do list
     // when user clicks "ok" the ToDoListActivity starts to display the new list.
     public void onClickNewList(View v) {
-        Log.d("Inside onClickNewList", "yes");
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
         alertDialogBuilder.setTitle("New List");
         alertDialogBuilder.setMessage("Name this list: ");
@@ -139,8 +144,9 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
                 if(!text.equals("")) {
                     NewListCreater create = new NewListCreater(text);
                     String newid = create.addToFirebase();
-                    startListActivity(newid);
-                    listnames.add(newid);
+                    startListActivity(newid, text);
+                    listids.add(newid);
+                    listnames.add(text);
                     alertDialog.dismiss();
                 }
             }
