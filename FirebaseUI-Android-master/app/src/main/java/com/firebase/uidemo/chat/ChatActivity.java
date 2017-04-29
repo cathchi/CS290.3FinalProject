@@ -165,6 +165,7 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    // menu item to go to shared list between two users
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -189,6 +190,9 @@ public class ChatActivity extends AppCompatActivity
         createShared.findExistingLists();
     }
 
+    // handles when the list search is finished.
+    // if there is existing list, opens that list
+    // if no existing list, opens an alert dialog box to name and create a shared list
     public void listSearchFinished(String id, String name){
         Log.d("ChatActvitiy", "finished " + id + " ");
         if(id == null) {
@@ -656,6 +660,7 @@ public class ChatActivity extends AppCompatActivity
         mMessageEdit.setText("");
     }
 
+    // finds if there is a shared list among the current user and the receiver user
     private class SharedListFinder {
         private static final String TAG = "SharedListFinder";
         private String mListID, mListTitle;
