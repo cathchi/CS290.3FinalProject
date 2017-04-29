@@ -1,5 +1,7 @@
 package com.firebase.uidemo.todolist;
 
+import android.util.Log;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -24,18 +26,15 @@ public class NewListCreater {
 
     // stores the list as a child
     public String addToFirebase() {
-        String id = createId();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
         DatabaseReference ref = database.getReference()
-                .child("users").child(mUid).child("todolists").child(id);
-        return id;
+                .child("users").child(mUid).child("todolists");
+        DatabaseReference childRef = ref.push();
+        childRef.child("title").setValue(title);
+        Log.d("New List Creater", childRef.getKey());
+        return childRef.getKey();
     }
 
-    // generates an ID for the list for Firebase
-    private String createId() {
-        String s = title.replaceAll("\\s+","");
-        return s;
-    }
 }
