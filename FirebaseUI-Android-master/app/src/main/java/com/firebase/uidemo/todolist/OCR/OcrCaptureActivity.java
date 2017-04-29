@@ -57,12 +57,19 @@ import com.google.android.gms.vision.text.TextRecognizer;
 import com.google.android.gms.vision.text.Line;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Activity for the Ocr Detecting app.  This app detects text and displays the value with the
@@ -96,6 +103,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     private DatabaseReference myRef;
 
     private String toDoListID;
+    private String myToDoList;
 
 
     /**
@@ -142,7 +150,18 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
         myRef = database.getReference()
-                .child("users").child(mUid).child("todolists").child(toDoListID);
+                .child("lists").child(toDoListID);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                myToDoList = (String) dataSnapshot.child("title").getValue();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("Read failed", "failed");
+            }
+        });
     }
 
     /**
@@ -371,7 +390,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                     AlertDialog.Builder addDialog = new AlertDialog.Builder(OcrCaptureActivity.this);
                     addDialog.setTitle("Add to To-Do List");
                     String message = "Would you like to add " + "<b>" + currentText.getValue() +
-                            "</b>" +" to your " + "To-Do List, " +"<i>" + toDoListID + "</i>"+ "?";
+                            "</b>" +" to your " + "To-Do List, " +"<i>" + myToDoList + "</i>"+ "?";
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
                         addDialog.setMessage(Html.fromHtml(message,Html.FROM_HTML_MODE_LEGACY));
                     } else {
@@ -383,7 +402,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                     addDialog.setPositiveButton("YES",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which){
-                                    DatabaseReference myTask = myRef.push();
+                                    DatabaseReference myTask = myRef.child("tasks").push();
                                     myTask.child("task").setValue(textString);
                                     myTask.child("notes").setValue("");
                                     myTask.child("assign").setValue("");
