@@ -36,6 +36,7 @@ import java.util.Set;
 public class ListsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private List<String> listnames = new ArrayList<>();
     private List<String> listids = new ArrayList<>();
+    private String mUid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,29 +54,24 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
     public void addListsfromFB() {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String mUid = currentUser.getUid();
-        final DatabaseReference ref= database.getReference()
-                .child("users").child(mUid).child("todolists");
-
+        mUid = currentUser.getUid();
+        final DatabaseReference ref= database.getReference();
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
-
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> td = (HashMap<String,Object>) dataSnapshot.getValue();
+                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("users").child(mUid).child("todolists").getValue();
                 if(td != null) {
                     Set<String> ids = td.keySet();
                     for(String id : ids) {
                         listids.add(id);
-                        listnames.add(dataSnapshot.child(id).child("title").getValue().toString());
+                        listnames.add(dataSnapshot.child("lists").child(id).child("title").getValue().toString());
                     }
                 }
                 else {
-                    listnames = new ArrayList<>();
                     listids = new ArrayList<>();
+                    listnames = new ArrayList<>();
                 }
                 fillListView();
-                Log.d("names number", listnames.size()+"");
-                Log.d("Read success", "items added");
             }
 
             @Override
