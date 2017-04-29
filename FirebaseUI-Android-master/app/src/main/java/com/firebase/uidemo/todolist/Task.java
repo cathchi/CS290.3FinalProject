@@ -44,22 +44,11 @@ public class Task {
         return notes;
     }
 
-    public String getEmail(){
-        return notes;
-    }
-
     public String getUid(){
         return id;
     }
 
     public String getTaskid() {return taskid;}
-
-    public boolean checkUpdates (String title, String notes, String location) {
-        Log.d("TASK", "title: " + this.taskTitle + "notes: " + this.notes);
-        if(!this.taskTitle.equals(title) || !this.notes.equals(notes) || !this.location.equals(location))
-            return true;
-        return false;
-    }
 
     public boolean checkUpdates (String title, String notes) {
         if(!this.taskTitle.equals(title) || !this.notes.equals(notes))

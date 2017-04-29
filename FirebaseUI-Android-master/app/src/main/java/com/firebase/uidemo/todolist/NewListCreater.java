@@ -4,8 +4,11 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +56,26 @@ public class NewListCreater {
         userRef.child(listRef.getKey()).child("shared").setValue(otherUId);
 
         return listRef.getKey();
+    }
+
+    public ListItem getListObject(){
+        final ArrayList<String> userNames = new ArrayList<String>();
+        for(String user: users){
+            DatabaseReference myuser = database.getReference().child("users").child(user).child("name");
+            myuser.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    userNames.add(dataSnapshot.getValue().toString());
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.d("Read failed", "failed");
+                }
+            });
+        }
+        ListItem myList = new ListItem(title, userNames, listRef.getKey());
+        return myList;
     }
 
 }

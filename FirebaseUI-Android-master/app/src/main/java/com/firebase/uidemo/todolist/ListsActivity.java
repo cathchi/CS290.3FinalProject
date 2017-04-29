@@ -33,9 +33,9 @@ import java.util.Set;
  * Displays all the user's to-do lists.
  */
 
-public class ListsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
-    private List<String> listnames = new ArrayList<>();
-    private List<String> listids = new ArrayList<>();
+public class ListsActivity extends AppCompatActivity {
+    private List<ListItem> listitems = new ArrayList<ListItem>();
+    //private List<String> listids = new ArrayList<>();
     private String mUid;
 
     @Override
@@ -63,17 +63,29 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
                 if(td != null) {
                     Set<String> ids = td.keySet();
                     for(String id : ids) {
-                        listids.add(id);
                         DataSnapshot list = dataSnapshot.child("lists").child(id);
+                        String title = list.child("title").getValue().toString();
+                        ArrayList<String> Users = new ArrayList<String>();
+                        for(DataSnapshot user: list.child("users").getChildren()){
+                            String userID = user.getValue().toString();
+                            String name = dataSnapshot.child("users").child(userID).child("name").getValue().toString();
+                            Users.add(name);
+                        }
+                        ListItem myList= new ListItem(title, Users, id);
+                        listitems.add(myList);
+                        /*
+                        listitems.add
+                        listids.add(id);
+
                         if(list.child("users").child("1").getValue() != null)
                             listnames.add("(SHARED) " + list.child("title").getValue().toString());
                         else
-                            listnames.add(list.child("title").getValue().toString());
+                            listnames.add(list.child("title").getValue().toString());*/
                     }
                 }
                 else {
-                    listids = new ArrayList<>();
-                    listnames = new ArrayList<>();
+                    //listids = new ArrayList<>();
+                    listitems = new ArrayList<ListItem>();
                 }
                 fillListView();
             }
@@ -90,17 +102,26 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         // Create a new Adapter
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, listnames);
+        final ListAdapter adapter = new ListAdapter(this, R.layout.todolist_item, R.id.text1);
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(this);
+        //listView.setOnItemClickListener(this);
+        for(ListItem listitem: listitems){
+            adapter.add(listitem);
+        }
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startListActivity(adapter.getItem(position).getMyID(), adapter.getItem(position).getListTitle());
+            }
+        });
     }
 
-    public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+    /*public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         startListActivity(listids.get(position), listnames.get(position));
-    }
+    }*/
 
     // starts new activity
     private void startListActivity(String id, String name) {
@@ -145,8 +166,8 @@ public class ListsActivity extends AppCompatActivity implements AdapterView.OnIt
                     NewListCreater create = new NewListCreater(text);
                     String newid = create.addToFirebase();
                     startListActivity(newid, text);
-                    listids.add(newid);
-                    listnames.add(text);
+                    //listids.add(newid);
+                    listitems.add(create.getListObject());
                     alertDialog.dismiss();
                 }
             }
