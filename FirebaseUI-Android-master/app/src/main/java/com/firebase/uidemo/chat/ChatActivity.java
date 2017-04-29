@@ -25,6 +25,7 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -45,7 +46,6 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.firebase.uidemo.R;
-import com.firebase.uidemo.todolist.ListsActivity;
 import com.firebase.uidemo.todolist.NewListCreater;
 import com.firebase.uidemo.todolist.ToDoListActivity;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
@@ -75,6 +75,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -184,63 +185,77 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void goToSharedList() {
-        findExistingList();
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
-        alertDialogBuilder.setTitle("New List");
-        alertDialogBuilder.setMessage("Name this list: ");
-
-        final EditText et = new EditText(this.getApplicationContext());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        et.setLayoutParams(lp);
-        // set prompts.xml to alertdialog builder
-        alertDialogBuilder.setView(et);
-        alertDialogBuilder.setPositiveButton("OK",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        // create alert dialog
-        final AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
-        alertDialog.show();
-
-        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String text = et.getText().toString();
-                Log.d("Got text", text);
-                if(!text.equals("")) {
-                    NewListCreater create = new NewListCreater(text);
-                    String newid = create.addSharedToFirebase(mReceiverUID);
-                    Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
-                    i.putExtra("childid", newid);
-                    i.putExtra("childname", text);
-                    startActivity(i);
-                    alertDialog.dismiss();
-                }
-            }
-        });
+        SharedListFinder createShared = new SharedListFinder();
+        createShared.findExistingLists();
     }
 
-    public void findExistingList() {
-        mMessageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    public void listSearchFinished(String id, String name){
+        Log.d("ChatActvitiy", "finished " + id + " ");
+        if(id == null) {
+            Log.d("ChatActvitiy", "building alert dialog");
+            final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
+            alertDialogBuilder.setTitle("New List");
+            alertDialogBuilder.setMessage("Name this list: ");
+
+            final EditText et = new EditText(this.getApplicationContext());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            et.setLayoutParams(lp);
+            // set prompts.xml to alertdialog builder
+            alertDialogBuilder.setView(et);
+            alertDialogBuilder.setPositiveButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+            // create alert dialog
+            final AlertDialog alertDialog = alertDialogBuilder.create();
+
+            // show it
+            alertDialog.show();
+
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String text = et.getText().toString();
+                    Log.d("Got text", text);
+                    if(!text.equals("")) {
+                        NewListCreater create = new NewListCreater(text);
+                        String listId = create.addSharedToFirebase(mReceiverUID);
+                        handleList(listId, text);
+                        alertDialog.dismiss();
+                    }
+                }
+            });
+        }
+        else {
+            handleList(id, name);
+        }
+
+    }
+
+   /* public void findExistingList() {
+
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("todolists").getValue();
+                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("users").child(mUID).child("todolists").getValue();
                 if(td != null) {
                     Set<String> ids = td.keySet();
                     for(String id : ids) {
-                        DataSnapshot snap = dataSnapshot.child("todolists").child(id).child("shared");
+                        Log.d("ChatActivity", "id searching: " + id);
+                        DataSnapshot snap = dataSnapshot.child("users").child(mUID).child("todolists").child(id).child("shared");
+
                         if(snap.getValue() != null) {
+                            Log.d("ChatActivity", snap.getValue().toString());
                             if(snap.getValue().toString().equals(mReceiverUID)) {
-                                Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
-                                i.putExtra("childid", id);
-                                i.putExtra("childname", "blah");
+                                Log.d("ChatActvitiy","list existing");
+                                //listFound = true;
+                                handleList(id, dataSnapshot.child("lists").child(id).child("title").getValue().toString());
                             }
                         }
+                        else {Log.d("ChatActivity", "snap null");}
                     }
                 }
             }
@@ -250,6 +265,13 @@ public class ChatActivity extends AppCompatActivity
 
             }
         });
+    }*/
+
+    public void handleList(String id, String text) {
+        Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
+        i.putExtra("childid", id);
+        i.putExtra("childname", text);
+        startActivity(i);
     }
 
     @Override
@@ -633,4 +655,46 @@ public class ChatActivity extends AppCompatActivity
         }
         mMessageEdit.setText("");
     }
+
+    private class SharedListFinder {
+        private static final String TAG = "SharedListFinder";
+        private String mListID, mListTitle;
+
+        protected void findExistingLists() {
+            mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("users").child(mUID).child("todolists").getValue();
+                    if(td != null) {
+                        Set<String> ids = td.keySet();
+                        int count = 0;
+                        for(String id : ids) {
+                            Log.d(TAG, "id searching: " + id);
+                            DataSnapshot snap = dataSnapshot.child("users").child(mUID).child("todolists").child(id).child("shared");
+                            count++;
+                            Log.d(TAG, count + " out of " + ids.size());
+
+                            if(snap.getValue() != null) {
+                                Log.d(TAG, snap.getValue().toString());
+                                if(snap.getValue().toString().equals(mReceiverUID)) {
+                                    Log.d(TAG,"list existing");
+                                    mListID = id;
+                                    mListTitle = dataSnapshot.child("lists").child(id).child("title").getValue().toString();
+                                    listSearchFinished(mListID, mListTitle);
+                                }
+                            }
+                            if (count == ids.size()){listSearchFinished(null, null);}
+                        }
+
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+    }
+
 }
