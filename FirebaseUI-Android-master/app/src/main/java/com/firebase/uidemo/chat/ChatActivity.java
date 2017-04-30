@@ -452,7 +452,6 @@ public class ChatActivity extends AppCompatActivity
                         downloadRecording(chat.getMessage().substring(FILE_PATH_START));
                     }
                     mChats.add(chat);
-                    mChats.add(chat);
                     Collections.sort(mChats);
                     mAdapter.notifyItemInserted(mChats.size() - 1);
                 }
