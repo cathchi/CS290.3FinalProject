@@ -115,6 +115,11 @@ public class ChatActivity extends AppCompatActivity
     private static final String AUDIO_EXTENSION = ".3pg";
     private static final String UID = "UID";
     private static final String NAME = "NAME";
+    private static final String DATABASE_REF_USERS = "users";
+    private static final String DATABSE_REF_CHATS = "chats";
+    private static final String CHILD_ID = "childid";
+    private static final String CHILD_NAME = "childname";
+    private static final String OK = "OK";
 
     private String mFileName;
     private String mLastSegmentFileName;
@@ -146,10 +151,10 @@ public class ChatActivity extends AppCompatActivity
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = mRef.child("users");
+        DatabaseReference ref = mRef.child(DATABASE_REF_USERS);
         DatabaseReference messageRef = ref.child(mAuth.getCurrentUser().getUid());
-        mReceiverChatRef = ref.child(mReceiverUID).child("chats");
-        mChatRef = messageRef.child("chats");
+        mReceiverChatRef = ref.child(mReceiverUID).child(DATABSE_REF_CHATS);
+        mChatRef = messageRef.child(DATABSE_REF_CHATS);
 
         mManager = new LinearLayoutManager(this);
         mManager.setReverseLayout(false);
@@ -185,9 +190,11 @@ public class ChatActivity extends AppCompatActivity
         createShared.findExistingLists();
     }
 
-    // handles when the list search is finished.
-    // if there is existing list, opens that list
-    // if no existing list, opens an alert dialog box to name and create a shared list
+    /**
+     *  handles when the list search is finished
+     *  if there is existing list, opens that list
+     *  if no existing list, opens an alert dialog box to name and create a shared list
+     */
     public void listSearchFinished(String id, String name){
         Log.d("ChatActvitiy", "finished " + id + " ");
         if(id == null) {
@@ -203,7 +210,7 @@ public class ChatActivity extends AppCompatActivity
             et.setLayoutParams(lp);
             // set prompts.xml to alertdialog builder
             alertDialogBuilder.setView(et);
-            alertDialogBuilder.setPositiveButton("OK",
+            alertDialogBuilder.setPositiveButton(OK,
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                         }
@@ -234,42 +241,10 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
-   /* public void findExistingList() {
-
-        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("users").child(mUID).child("todolists").getValue();
-                if(td != null) {
-                    Set<String> ids = td.keySet();
-                    for(String id : ids) {
-                        Log.d("ChatActivity", "id searching: " + id);
-                        DataSnapshot snap = dataSnapshot.child("users").child(mUID).child("todolists").child(id).child("shared");
-
-                        if(snap.getValue() != null) {
-                            Log.d("ChatActivity", snap.getValue().toString());
-                            if(snap.getValue().toString().equals(mReceiverUID)) {
-                                Log.d("ChatActvitiy","list existing");
-                                //listFound = true;
-                                handleList(id, dataSnapshot.child("lists").child(id).child("title").getValue().toString());
-                            }
-                        }
-                        else {Log.d("ChatActivity", "snap null");}
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }*/
-
     public void handleList(String id, String text) {
         Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
-        i.putExtra("childid", id);
-        i.putExtra("childname", text);
+        i.putExtra(CHILD_ID, id);
+        i.putExtra(CHILD_NAME, text);
         startActivity(i);
     }
 
@@ -318,7 +293,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     /**
-     * adds RecyclerView for scrolling through messages
+     * Adds RecyclerView for scrolling through messages
      */
     private void attachRecyclerViewAdapter() {
 
@@ -679,10 +654,9 @@ public class ChatActivity extends AppCompatActivity
     }
 
     /**
-     * plays recording of audio at specific chat
+     * Plays recording of audio at specific chat
      * @param position indicates which chat audio to play
      */
-
     private void playRecording(int position) {
         mMediaPlayer = new MediaPlayer();
         mFileName = getExternalCacheDir().getAbsolutePath() + "/" +
@@ -707,7 +681,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     /**
-     * sends message
+     * Sends message
      */
     public void send(View view) {
         mMessage = mMessageEdit.getText().toString();
@@ -720,7 +694,9 @@ public class ChatActivity extends AppCompatActivity
         mMessageEdit.setText("");
     }
 
-    // finds if there is a shared list among the current user and the receiver user
+    /**
+     * Finds if there is a shared list among the current user and the receiver user
+     */
     private class SharedListFinder {
         private static final String TAG = "SharedListFinder";
         private String mListID, mListTitle;

@@ -24,7 +24,7 @@ import java.util.List;
  * Created by CathyChi on 4/15/17.
  */
 
-public class ChatNewMessageActivity extends AppCompatActivity implements RecyclerViewClickListener {
+public class ChatNewMessageActivity extends AppCompatActivity {
 
     private DatabaseReference mRef;
     private List<String> mEmails = new ArrayList<>();
@@ -32,12 +32,19 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
     private List<String> mNames = new ArrayList<>();
     private String mSearchedEmail = null;
 
+    private static final String DATABASE_REF_USERS = "users";
+    private static final String UID = "UID";
+    private static final String NAME = "NAME";
+
+    /**
+     * Initializes view and keeps track of all userIDs, names, and emails in a list for searching
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_message);
 
-        mRef = FirebaseDatabase.getInstance().getReference().child("users");
+        mRef = FirebaseDatabase.getInstance().getReference().child(DATABASE_REF_USERS);
 
         mRef.addChildEventListener(new ChildEventListener() {
             @Override
@@ -69,8 +76,6 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
         });
 
         final EditText editText = (EditText) findViewById(R.id.edit_text);
-//        editText.setFocusableInTouchMode(true);
-//        editText.requestFocus();
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -80,19 +85,18 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
             }
         });
 
-        //mOptionsAdapter = new ChatListAdapter(this, )
-        //RecyclerView
     }
 
+    /**
+     * Searches to find the matched email to start new chat with searched user
+     */
     private void handleSearch() {
         if (mSearchedEmail != null) {
             int index = mEmails.indexOf(mSearchedEmail);
             if (index>-1) {
                 Intent intent = new Intent(this, ChatActivity.class);
-                intent.putExtra("UID", mUIDs.get(index));
-                intent.putExtra("NAME", mNames.get(index));
-                intent.putExtra("NEW_MESSAGE", false);
-
+                intent.putExtra(UID, mUIDs.get(index));
+                intent.putExtra(NAME, mNames.get(index));
                 startActivity(intent);
             }
             else {
@@ -103,8 +107,4 @@ public class ChatNewMessageActivity extends AppCompatActivity implements Recycle
         }
     }
 
-    @Override
-    public void recyclerViewItemClicked(int position) {
-
-    }
 }
