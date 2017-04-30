@@ -80,7 +80,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 public class ChatActivity extends AppCompatActivity
         implements FirebaseAuth.AuthStateListener, RecyclerViewClickListener{
 
-    private static final String TAG = "RecyclerViewDemo";
+    private static final String TAG = "ChatActivity";
 
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
