@@ -115,6 +115,7 @@ public class ChatActivity extends AppCompatActivity
     private static final String AUDIO_EXTENSION = ".3pg";
     private static final String UID = "UID";
     private static final String NAME = "NAME";
+    private static final String USER = "user";
     private static final String DATABASE_REF_USERS = "users";
     private static final String DATABSE_REF_CHATS = "chats";
     private static final String CHILD_ID = "childid";
@@ -250,7 +251,7 @@ public class ChatActivity extends AppCompatActivity
         Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
         i.putExtra(CHILD_ID, id);
         i.putExtra(CHILD_NAME, text);
-        i.putExtra("users", "");
+        i.putExtra(USER, "");
         startActivity(i);
     }
 
