@@ -118,9 +118,14 @@ public class ChatActivity extends AppCompatActivity
     private static final String USER = "user";
     private static final String DATABASE_REF_USERS = "users";
     private static final String DATABSE_REF_CHATS = "chats";
+    private static final String DATABASE_REF_TODOLISTS = "lists";
+    private static final String DATABASE_REF_TITLE = "title";
+    private static final String DATABASE_REF_SHARED = "shared";
     private static final String CHILD_ID = "childid";
     private static final String CHILD_NAME = "childname";
     private static final String OK = "OK";
+    private static final String NEW_LIST = "New List";
+    private static final String NAME_LIST = "Name this list: ";
 
     private String mFileName;
     private String mLastSegmentFileName;
@@ -201,8 +206,8 @@ public class ChatActivity extends AppCompatActivity
         if(id == null) {
             Log.d(TAG, "building alert dialog");
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
-            alertDialogBuilder.setTitle("New List");
-            alertDialogBuilder.setMessage("Name this list: ");
+            alertDialogBuilder.setTitle(NEW_LIST);
+            alertDialogBuilder.setMessage(NAME_LIST);
 
             final EditText et = new EditText(this.getApplicationContext());
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
@@ -499,7 +504,7 @@ public class ChatActivity extends AppCompatActivity
      * @return boolean to indicate if file exists
      */
     private boolean fileExists(String s) {
-        File file = new File(getExternalCacheDir().getAbsolutePath() + "/" +s);
+        File file = new File(getExternalCacheDir().getAbsolutePath() + "/" + s);
         if (file == null || !file.exists()) return false;
         return true;
     }
@@ -720,13 +725,15 @@ public class ChatActivity extends AppCompatActivity
             mRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("users").child(mUID).child("todolists").getValue();
+                    Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child(DATABASE_REF_USERS).child(mUID)
+                            .child(DATABASE_REF_TODOLISTS).getValue();
                     if(td != null) {
                         Set<String> ids = td.keySet();
                         int count = 0;
                         for(String id : ids) {
                             Log.d(TAG, "id searching: " + id);
-                            DataSnapshot snap = dataSnapshot.child("users").child(mUID).child("todolists").child(id).child("shared");
+                            DataSnapshot snap = dataSnapshot.child(DATABASE_REF_USERS).child(mUID).child(DATABASE_REF_TODOLISTS)
+                                    .child(id).child(DATABASE_REF_SHARED);
                             count++;
                             Log.d(TAG, count + " out of " + ids.size());
 
@@ -735,7 +742,8 @@ public class ChatActivity extends AppCompatActivity
                                 if(snap.getValue().toString().equals(mReceiverUID)) {
                                     Log.d(TAG,"list existing");
                                     mListID = id;
-                                    mListTitle = dataSnapshot.child("lists").child(id).child("title").getValue().toString();
+                                    mListTitle = dataSnapshot.child(DATABASE_REF_TODOLISTS).child(id)
+                                            .child(DATABASE_REF_TITLE).getValue().toString();
                                     listSearchFinished(mListID, mListTitle);
                                 }
                             }
