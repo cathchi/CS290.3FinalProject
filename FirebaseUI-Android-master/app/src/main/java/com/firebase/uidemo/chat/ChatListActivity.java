@@ -43,7 +43,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     private List<String> mMessageIDs = new ArrayList<>();
     private List<Chat> mChats = new ArrayList<>();
     private List<String> mTypes = new ArrayList<>();
-    private List<ArrayList<String>> mRecipientUIDs = new ArrayList<>();
     private List<Long> mTimeStamps = new ArrayList<>();
     private ChatListAdapter chatListAdapter;
     private SQLiteOpenHelper mDBHelper;
@@ -51,10 +50,17 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     private DatabaseReference mRef;
     private FirebaseUser mUser;
 
-    private boolean isSender;
 
     private static final String TAG = "ERROR";
 
+    private static final String UID = "UID";
+    private static final String NAME = "NAME";
+    private static final String DATABASE_REF_USERS = "users";
+    private static final String DATABSE_REF_CHATS = "chats";
+
+    /**
+     * Initializes view
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +87,9 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         getDatabaseData();
     }
 
-
+    /**
+     * Stores messages from Firebase Database into SQLite database in an AsyncTask
+     */
     private void writeDatabase() {
         new AsyncTask<List<String>, Void, Long>() {
             @Override
@@ -93,7 +101,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                 ContentValues contentValues = new ContentValues();
                 long id = 0;
                 for (int i = 0; i < mNames.size(); i++) {
-                    Log.d("PRINTING EVERYTHING", mRNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RNAMES, mRNames. get(i));
@@ -109,7 +116,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     }
                 }
                 mDBHelper.close();
-                Log.d("COUNTING ID", id+"");
                 return id;
             }
         }.execute();
@@ -121,11 +127,15 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         super.onDestroy();
     }
 
+    /**
+     * Fetches new messages from Firebase Database to store into SQLite database
+     */
     private void getDatabaseData () {
         mRef = FirebaseDatabase.getInstance().getReference();
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         final String displayName = mUser.getDisplayName();
-        mChatRef = mRef.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("chats");
+        mChatRef = mRef.child(DATABASE_REF_USERS).child(FirebaseAuth.getInstance()
+                .getCurrentUser().getUid()).child(DATABSE_REF_CHATS);
         mChatRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -162,7 +172,10 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         });
     }
 
-
+    /**
+     * Changes to ChatActivity where the user can chat with selected user
+     * @param position is the index of the name the user clicks on the chat with
+     */
     @Override
     public void recyclerViewItemClicked(int position) {
         String id;
@@ -175,9 +188,8 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
             name = mChats.get(position).getName();
         }
         Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra("UID", id);
-        intent.putExtra("NAME", name);
-        intent.putExtra("NEW_MESSAGE", false);
+        intent.putExtra(UID, id);
+        intent.putExtra(NAME, name);
         startActivity(intent);
 
     }

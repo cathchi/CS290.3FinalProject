@@ -88,11 +88,8 @@ public class ChatActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
     private DatabaseReference mChatRef;
-    private DatabaseReference mMessageRef;
     private DatabaseReference mReceiverChatRef;
     private StorageReference mStorageRef;
-    private StorageReference mUserStorageRef;
-    private StorageReference mRecipientStorageRef;
     private Button mSendButton;
     private EditText mMessageEdit;
 
@@ -106,7 +103,6 @@ public class ChatActivity extends AppCompatActivity
     private String mUID;
     private Chat mChat;
     private List<Chat> mChats = new ArrayList<>();
-    private ArrayList<String> mRecipientUIDs = new ArrayList<>();
     private String mReceiverUID;
     private String mReceiverName;
     private String mType;
@@ -117,6 +113,8 @@ public class ChatActivity extends AppCompatActivity
     private static final String TEXT_MESSAGE = "text";
     private static final String AUDIO_MESSAGE = "audio";
     private static final String AUDIO_EXTENSION = ".3pg";
+    private static final String UID = "UID";
+    private static final String NAME = "NAME";
 
     private String mFileName;
     private String mLastSegmentFileName;
@@ -135,10 +133,8 @@ public class ChatActivity extends AppCompatActivity
 
         audioButton = (FloatingActionButton) findViewById(R.id.audioButton);
 
-        mReceiverUID = getIntent().getStringExtra("UID");
-        mReceiverName = getIntent().getStringExtra("NAME");
-
-        mRecipientUIDs.add(mReceiverUID);
+        mReceiverUID = getIntent().getStringExtra(UID);
+        mReceiverName = getIntent().getStringExtra(NAME);
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.addAuthStateListener(this);
@@ -151,9 +147,9 @@ public class ChatActivity extends AppCompatActivity
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference ref = mRef.child("users");
-        mMessageRef = ref.child(mAuth.getCurrentUser().getUid());
+        DatabaseReference messageRef = ref.child(mAuth.getCurrentUser().getUid());
         mReceiverChatRef = ref.child(mReceiverUID).child("chats");
-        mChatRef = mMessageRef.child("chats");
+        mChatRef = messageRef.child("chats");
 
         mManager = new LinearLayoutManager(this);
         mManager.setReverseLayout(false);
@@ -619,8 +615,8 @@ public class ChatActivity extends AppCompatActivity
      */
     private void storeStorage() {
         Uri file = Uri.fromFile(new File(mFileName));
-        mUserStorageRef = mStorageRef.child(mUID).child(file.getLastPathSegment());
-        UploadTask uploadTask = mUserStorageRef.putFile(file);
+        StorageReference userStorageRef = mStorageRef.child(mUID).child(file.getLastPathSegment());
+        UploadTask uploadTask = userStorageRef.putFile(file);
 
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -665,11 +661,11 @@ public class ChatActivity extends AppCompatActivity
      * @param s is the name of the unique file extension
      */
     private void downloadRecording(String s) {
-        mRecipientStorageRef = mStorageRef.child(mReceiverUID).child(s);
+        StorageReference recipientStorageRef = mStorageRef.child(mReceiverUID).child(s);
         File localFile;
         localFile = new File(getExternalCacheDir().getAbsolutePath() + "/" + s);
         mFileName = localFile.getAbsolutePath();
-        mRecipientStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+        recipientStorageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                 Log.d(TAG, "File successfully downloaded");
