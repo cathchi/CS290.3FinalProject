@@ -293,6 +293,13 @@ public class SignedInActivity extends AppCompatActivity {
         finish();
     }
 
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        startActivity(new Intent(SignedInActivity.this, SignedInActivity.class));
+        finish();
+    }
+
     @OnClick(R.id.to_home)
     public void goToHome(){
         finish();
