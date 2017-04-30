@@ -14,7 +14,6 @@
 
 package com.firebase.uidemo.chat;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,8 +23,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.nfc.Tag;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -106,6 +103,7 @@ public class ChatActivity extends AppCompatActivity
     private String mReceiverUID;
     private String mReceiverName;
     private String mType;
+    private AlertDialog alertDialog;
 
     private FloatingActionButton audioButton;
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
@@ -217,7 +215,7 @@ public class ChatActivity extends AppCompatActivity
                         }
                     });
             // create alert dialog
-            final AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog = alertDialogBuilder.create();
 
             // show it
             alertDialog.show();
@@ -237,7 +235,11 @@ public class ChatActivity extends AppCompatActivity
             });
         }
         else {
+            if(alertDialog != null) {
+                alertDialog.dismiss();
+            }
             handleList(id, name);
+
         }
 
     }
@@ -737,6 +739,7 @@ public class ChatActivity extends AppCompatActivity
                                     mListID = id;
                                     mListTitle = dataSnapshot.child("lists").child(id).child("title").getValue().toString();
                                     listSearchFinished(mListID, mListTitle);
+                                    break;
                                 }
                             }
                             if (count == ids.size()){listSearchFinished(null, null);}
