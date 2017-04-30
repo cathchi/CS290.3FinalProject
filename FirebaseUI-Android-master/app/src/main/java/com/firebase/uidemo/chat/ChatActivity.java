@@ -774,6 +774,9 @@ public class ChatActivity extends AppCompatActivity
                         }
 
                     }
+                    else{
+                        listSearchFinished(null, null);
+                    }
                 }
 
                 @Override
