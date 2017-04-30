@@ -28,6 +28,7 @@ public class ListItem {
         return listTitle;
     }
 
+    //Strings users together for use in display of App Activities
     public String getUserString(){
         String userString = "";
         for(String user: users)
