@@ -293,9 +293,18 @@ public class SignedInActivity extends AppCompatActivity {
         startActivity(mIntent);
     }
 
+
     @OnClick(R.id.to_lists)
-    public void goToLists(){
+    public void goToLists() {
         Intent mIntent = new Intent(getApplicationContext(), ListsActivity.class);
         startActivity(mIntent);
     }
+
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        startActivity(new Intent(SignedInActivity.this, SignedInActivity.class));
+        finish();
+    }
+    
 }
