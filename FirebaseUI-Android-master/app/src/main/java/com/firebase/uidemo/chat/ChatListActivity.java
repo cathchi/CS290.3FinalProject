@@ -64,7 +64,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
         getSupportActionBar().setCustomView(R.layout.new_message_toolbar);
-        //View view = getSupportActionBar().getCustomView();
 
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.new_message_button);
 
@@ -94,17 +93,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                 ContentValues contentValues = new ContentValues();
                 long id = 0;
                 for (int i = 0; i < mNames.size(); i++) {
-//                    Log.d("PRINTING EVERYTHING", mUIDs.get(i));
-//                    Log.d("PRINTING EVERYTHING", mNames.get(i));
-//                    Log.d("PRINTING EVERYTHING", mMessages.get(i));
-//                    Log.d("PRINTING EVERYTHING", mMessageIDs.get(i));
-//                    JSONObject RUIDs = new JSONObject();
-//                    try {
-//                        RUIDs.put("RECIPIENT UIDs", new JSONArray(mRecipientUIDs.get(i)));
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                    }
-//                    String newRUIDs = RUIDs.toString();
                     Log.d("PRINTING EVERYTHING", mRNames.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGEID, mMessageIDs.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_NAMES, mNames.get(i));
@@ -114,7 +102,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_TIMESTAMP, mTimeStamps.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, mRecipientUID.get(i));
                     contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_MESSAGETYPE, mTypes.get(i));
-                    //contentValues.put(ChatContract.ChatHistory.COLUMN_NAME_RECIPIENTUID, newRUIDs);
                     try {
                         id += database.insertOrThrow(ChatContract.ChatHistory.TABLE_NAME, null, contentValues);
                     } catch (SQLException e){
@@ -122,7 +109,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     }
                 }
                 mDBHelper.close();
-//                int count = database.update(ChatContract.ChatHistory.TABLE_NAME, contentValues, null, null);
                 Log.d("COUNTING ID", id+"");
                 return id;
             }
@@ -161,14 +147,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
                     mRecipientUID.add(ds.getValue(Chat.class).getRUID());
                     mRNames.add(ds.getValue(Chat.class).getRName());
                     mTypes.add(ds.getValue(Chat.class).getType());
-                    //mRecipientUIDs.add(ds.getValue(Chat.class).getRUIDs());
                     mTimeStamps.add(ds.getValue(Chat.class).getTimeStamp());
-
-//                    Log.d("MESSAGE ID", ds.getKey());
-//                    Log.d("NAMES", ds.getValue(Chat.class).getName());
-//                    Log.d("UID", ds.getValue(Chat.class).getUid());
-//                    Log.d("MESSAGES", ds.getValue(Chat.class).getMessage());
-//                    Log.d("SIZE", mDisplayNames.size() +"");
                 }
                 if (!mNames.isEmpty()) {
                     writeDatabase();
@@ -195,7 +174,6 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
             id = mChats.get(position).getUid();
             name = mChats.get(position).getName();
         }
-        //String id = "jmuFR6aaVaYj8enOr1bO9cmCxoZ2";
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra("UID", id);
         intent.putExtra("NAME", name);
