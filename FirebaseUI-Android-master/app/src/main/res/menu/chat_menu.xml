@@ -3,4 +3,11 @@
     <item
         android:id="@+id/sharedList"
         android:title="Your shared list"/>
+    <item
+        android:id="@+id/return_home"
+        android:title="Go Home"/>
+    <item
+        android:title="Sign Out"
+        android:id="@+id/logout" />
+
 </menu>
