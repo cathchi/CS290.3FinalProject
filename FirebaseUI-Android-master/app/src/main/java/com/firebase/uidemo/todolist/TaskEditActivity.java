@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.firebase.uidemo.R;
@@ -56,6 +57,7 @@ public class TaskEditActivity extends Activity {
         final EditText taskEdit = (EditText) findViewById(R.id.taskNameEdit);
         final EditText notesEdit = (EditText) findViewById(R.id.notesEdit);
         final EditText assignEdit = (EditText) findViewById(R.id.assignEdit);
+
 
         addressText = (Button) findViewById(R.id.locationEdit);
 
