@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -66,7 +67,7 @@ public class CameraActivity extends AppCompatActivity  {
     private Uri mFileUri;
     private StorageReference mImageRef;
     private DatabaseReference mRef;
-    Button captureButton;
+    FloatingActionButton captureButton;
     private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
 
         @Override
@@ -109,7 +110,7 @@ public class CameraActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
         mRef = FirebaseDatabase.getInstance().getReference();
-        captureButton = (Button) findViewById(R.id.button_capture);
+        captureButton = (FloatingActionButton) findViewById(R.id.button_capture);
         int permissionCheck = ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA);
         if(permissionCheck != PackageManager.PERMISSION_GRANTED){
