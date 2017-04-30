@@ -38,8 +38,7 @@ import java.util.Set;
  */
 
 public class ListsActivity extends AppCompatActivity {
-    private List<ListItem> listitems = new ArrayList<ListItem>();
-    //private List<String> listids = new ArrayList<>();
+    private List<ListItem> listitems = new ArrayList<>();
     private String mUid;
 
     @Override
@@ -53,8 +52,10 @@ public class ListsActivity extends AppCompatActivity {
         setTitle("Your To-Do Lists");
     }
 
-    // gets all the to do lists from Firebase
-    // listname is set to the list retreived
+    /*
+    gets all the to do lists from Firebase
+    listname is set to the list retreived
+     */
     public void addListsfromFB() {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -69,7 +70,7 @@ public class ListsActivity extends AppCompatActivity {
                     for(String id : ids) {
                         DataSnapshot list = dataSnapshot.child("lists").child(id);
                         String title = list.child("title").getValue().toString();
-                        ArrayList<String> Users = new ArrayList<String>();
+                        ArrayList<String> Users = new ArrayList<>();
                         for(DataSnapshot user: list.child("users").getChildren()){
                             String userID = user.getValue().toString();
                             String name = dataSnapshot.child("users").child(userID).child("name").getValue().toString();
@@ -77,19 +78,10 @@ public class ListsActivity extends AppCompatActivity {
                         }
                         ListItem myList= new ListItem(title, Users, id);
                         listitems.add(myList);
-                        /*
-                        listitems.add
-                        listids.add(id);
-
-                        if(list.child("users").child("1").getValue() != null)
-                            listnames.add("(SHARED) " + list.child("title").getValue().toString());
-                        else
-                            listnames.add(list.child("title").getValue().toString());*/
                     }
                 }
                 else {
-                    //listids = new ArrayList<>();
-                    listitems = new ArrayList<ListItem>();
+                    listitems = new ArrayList<>();
                 }
                 fillListView();
             }
