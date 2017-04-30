@@ -44,16 +44,13 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.uidemo.R;
-import com.firebase.uidemo.SignInActivity;
 import com.firebase.uidemo.auth.SignedInActivity;
 import com.firebase.uidemo.todolist.NewListCreater;
 import com.firebase.uidemo.todolist.ToDoListActivity;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
 import com.firebase.uidemo.util.SignInResultNotifier;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -64,7 +61,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -77,7 +73,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -118,10 +113,11 @@ public class ChatActivity extends AppCompatActivity
     private static final String AUDIO_EXTENSION = ".3pg";
     private static final String UID = "UID";
     private static final String NAME = "NAME";
-    private static final String USER = "user";
+    private static final String USER = "users";
     private static final String DATABASE_REF_USERS = "users";
     private static final String DATABSE_REF_CHATS = "chats";
-    private static final String DATABASE_REF_TODOLISTS = "lists";
+    private static final String DATABASE_REF_TODOLISTS = "todolists";
+    private static final String DATABASE_REF_LISTS = "lists";
     private static final String DATABASE_REF_TITLE = "title";
     private static final String DATABASE_REF_SHARED = "shared";
     private static final String CHILD_ID = "childid";
@@ -186,7 +182,7 @@ public class ChatActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-            case R.id.sharedList:
+            case R.id.shared_List:
                 goToSharedList();
                 return true;
             case R.id.return_home:
@@ -213,6 +209,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     public void goToSharedList() {
+        Log.d(TAG, "inside shared list");
         SharedListFinder createShared = new SharedListFinder();
         createShared.findExistingLists();
     }
@@ -747,6 +744,7 @@ public class ChatActivity extends AppCompatActivity
         private String mListID, mListTitle;
 
         protected void findExistingLists() {
+            Log.d(TAG, "checking existing lists");
             mRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -767,7 +765,7 @@ public class ChatActivity extends AppCompatActivity
                                 if(snap.getValue().toString().equals(mReceiverUID)) {
                                     Log.d(TAG,"list existing");
                                     mListID = id;
-                                    mListTitle = dataSnapshot.child(DATABASE_REF_TODOLISTS).child(id)
+                                    mListTitle = dataSnapshot.child(DATABASE_REF_LISTS).child(id)
                                             .child(DATABASE_REF_TITLE).getValue().toString();
                                     listSearchFinished(mListID, mListTitle);
                                     break;
