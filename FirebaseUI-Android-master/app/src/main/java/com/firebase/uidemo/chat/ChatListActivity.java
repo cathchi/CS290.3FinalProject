@@ -192,6 +192,7 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
         intent.putExtra(UID, id);
         intent.putExtra(NAME, name);
         startActivity(intent);
-
     }
+
+
 }
