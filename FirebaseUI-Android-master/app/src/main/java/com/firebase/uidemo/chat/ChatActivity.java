@@ -267,12 +267,20 @@ public class ChatActivity extends AppCompatActivity
     public void onStop() {
         super.onStop();
         if (mRecorder != null) {
-            mRecorder.stop();
-            mRecorder.release();
+            try {
+                mRecorder.stop();
+                mRecorder.release();
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "stop failed onStop");
+            }
         }
         if (mMediaPlayer != null) {
-            mMediaPlayer.stop();
-            mMediaPlayer.release();
+            try {
+                mMediaPlayer.stop();
+                mMediaPlayer.release();
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "stop() failed onStop");
+            }
         }
     }
 
