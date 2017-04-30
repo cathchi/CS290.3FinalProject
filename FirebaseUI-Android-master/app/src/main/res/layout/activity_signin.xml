@@ -1,33 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <TextView
+    android:layout_height="match_parent"
+    android:background="@color/material_deep_teal_a200">
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Welcome to Tada! Please sign in to continue!"
-        android:textSize="30dp"
-        android:padding="24dp"/>
+        android:padding="30dp">
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="146dp"
+        android:layout_height="147dp"
+        app:srcCompat="@drawable/tadalogo"
+        android:layout_centerHorizontal="true"/>
+    </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:fontFamily="sans-serif"
+            android:padding="24dp"
+            android:text="Welcome to Tada!"
+            android:textSize="30dp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Please sign in to continue!"
+            android:textSize="24sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:padding="10dp"
+        android:padding="30dp"
         >
 
         <Button
             android:id="@+id/btnSingIn"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:layout_margin="4dp"
+            android:layout_centerHorizontal="true"
             android:text="Sign In"
-            android:background="@color/material_green_300"
+            android:background="@color/tw__composer_white"
             android:onClick="beginFlow"
             />
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>
