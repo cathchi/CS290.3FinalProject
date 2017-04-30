@@ -38,6 +38,7 @@ import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.SignInActivity;
 import com.firebase.uidemo.chat.ChatListActivity;
 import com.firebase.uidemo.todolist.ListsActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -92,7 +93,7 @@ public class SignedInActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
         if (currentUser == null) {
-            startActivity(AuthUiActivity.createIntent(this));
+            startActivity(new Intent(getApplicationContext(),SignInActivity.class));
             finish();
             return;
         }
@@ -143,7 +144,7 @@ public class SignedInActivity extends AppCompatActivity {
                         .load(rawString)
                         .asBitmap()
                         .transform(new RotateImage(getApplicationContext(), rotation, "welcome"))
-                        .placeholder(R.drawable.firebase_auth_120dp)
+                        .placeholder(R.drawable.tadalogo)
                         .into(mStartImage);
 
             }
@@ -164,7 +165,7 @@ public class SignedInActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            startActivity(AuthUiActivity.createIntent(SignedInActivity.this));
+                            startActivity(new Intent(SignedInActivity.this, SignInActivity.class));
                             finish();
                         } else {
                             showSnackbar(R.string.sign_out_failed);
