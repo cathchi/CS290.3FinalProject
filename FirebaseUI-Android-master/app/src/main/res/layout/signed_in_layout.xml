@@ -78,13 +78,13 @@
                 android:text="Go to Chat" />
 
             <Button
-                android:id="@+id/to_home"
+                android:id="@+id/to_lists"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_margin="16dp"
-                android:text="Go Home" />
+                android:text="Go To Lists" />
 
 
         </LinearLayout>
