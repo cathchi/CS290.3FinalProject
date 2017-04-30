@@ -241,6 +241,11 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Transition from ChatActivity to ToDoListActivity
+     * @param id is the list id
+     * @param text is the list title
+     */
     public void handleList(String id, String text) {
         Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
         i.putExtra(CHILD_ID, id);
