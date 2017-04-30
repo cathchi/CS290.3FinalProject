@@ -196,9 +196,9 @@ public class ChatActivity extends AppCompatActivity
      *  if no existing list, opens an alert dialog box to name and create a shared list
      */
     public void listSearchFinished(String id, String name){
-        Log.d("ChatActvitiy", "finished " + id + " ");
+        Log.d(TAG, "finished " + id + " ");
         if(id == null) {
-            Log.d("ChatActvitiy", "building alert dialog");
+            Log.d(TAG, "building alert dialog");
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
             alertDialogBuilder.setTitle("New List");
             alertDialogBuilder.setMessage("Name this list: ");
@@ -225,7 +225,7 @@ public class ChatActivity extends AppCompatActivity
                 @Override
                 public void onClick(View v) {
                     String text = et.getText().toString();
-                    Log.d("Got text", text);
+                    Log.d(TAG, "GOT TEXT" + text);
                     if(!text.equals("")) {
                         NewListCreater create = new NewListCreater(text);
                         String listId = create.addSharedToFirebase(mReceiverUID);
@@ -401,13 +401,13 @@ public class ChatActivity extends AppCompatActivity
                         chat.getRName().equals(mAuth.getCurrentUser().getDisplayName())) &&
                         (chat.getName().equals(mReceiverName) ||
                                 chat.getRName().equals(mReceiverName)) && index < 0) {
-                    // add part of code where every single UID of the people is checked
                     if (chat.getType().equals(AUDIO_MESSAGE) && !chat.getUid().equals(mUID)
                             && !fileExists(getExternalCacheDir().getAbsolutePath() + "/" +
                             chat.getMessage().substring(FILE_PATH_START))) {
                         downloadRecording(chat.getMessage().substring(FILE_PATH_START));
                     }
-                    mChats.add(chat); // this is not sorted potentially
+                    mChats.add(chat);
+                    mChats.add(chat);
                     Collections.sort(mChats);
                     mAdapter.notifyItemInserted(mChats.size() - 1);
                 }
