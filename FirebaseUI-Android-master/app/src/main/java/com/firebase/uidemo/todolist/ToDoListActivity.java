@@ -45,6 +45,7 @@ public class ToDoListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_todolist);
 
+        // Pass information about name/ID/List users from ListItem
         Bundle b = getIntent().getExtras();
         childname = b.getString("childname");
         childid = b.getString("childid");
@@ -151,11 +152,13 @@ public class ToDoListActivity extends AppCompatActivity {
 
             public void onItemClick(AdapterView<?> parent, View view,
                                     final int position, long id) {
+                //view details dialog for each task
                 final LayoutInflater inflater = ToDoListActivity.this.getLayoutInflater();
                 AlertDialog.Builder adb = new AlertDialog.Builder(
                         ToDoListActivity.this);
                 View dView = inflater.inflate(R.layout.task_details_dialog, null);
                 adb.setView(dView);
+                //set information in dialog
                 final TextView titleSection = (TextView)  dView.findViewById(R.id.taskTitle);
                 titleSection.setText("Task: "+ ((Task)listView.getItemAtPosition(position)).getName());
                 final TextView notesSection = (TextView) dView.findViewById(R.id.notes);
@@ -165,11 +168,13 @@ public class ToDoListActivity extends AppCompatActivity {
                 final TextView locationSection = (TextView) dView.findViewById(R.id.location);
                 locationSection.setText("Location: ");
                 final int posIndex = position;
+                //allow user to navigate to tak edit ativity
                 adb.setPositiveButton("Edit", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Intent i = new Intent(ToDoListActivity.this, TaskEditActivity.class);
                         String tid = adapter.getItem(posIndex).getTaskid();
+                        //put necessary information in bundle for database access
                         i.putExtra("taskID", tid);
                         i.putExtra("toDoListID", childid);
                         startActivity(i);
@@ -188,6 +193,7 @@ public class ToDoListActivity extends AppCompatActivity {
                 adb.setNegativeButton("OK", null);
                 adb.show();
 
+                //check if data has changed and update information in dialog
                 Query myQuery = myRef.child(adapter.getItem(posIndex).getTaskid());
 
                 myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -226,7 +232,7 @@ public class ToDoListActivity extends AppCompatActivity {
 
     public void updateList() {
         myRef.addListenerForSingleValueEvent(new ValueEventListener (){
-
+            //update task items when things are changed
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot taskid : dataSnapshot.getChildren()) {
