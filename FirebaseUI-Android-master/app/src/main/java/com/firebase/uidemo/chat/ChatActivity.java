@@ -295,6 +295,14 @@ public class ChatActivity extends AppCompatActivity
     @Override
     public void onStop() {
         super.onStop();
+        if (mRecorder != null) {
+            mRecorder.stop();
+            mRecorder.release();
+        }
+        if (mMediaPlayer != null) {
+            mMediaPlayer.stop();
+            mMediaPlayer.release();
+        }
     }
 
     @Override
