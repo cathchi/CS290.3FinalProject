@@ -103,7 +103,7 @@ public class SignedInActivity extends AppCompatActivity {
         setContentView(R.layout.signed_in_layout);
         ButterKnife.bind(this);
         populateProfile();
-        populateIdpToken();
+        //populateIdpToken();
         mUid = currentUser.getUid();
         final DatabaseReference mUser = mRef.child("users");
         final User newUser = new User();
@@ -255,7 +255,7 @@ public class SignedInActivity extends AppCompatActivity {
 
         mEnabledProviders.setText(providerList);
     }
-
+/*
     private void populateIdpToken() {
         String token = null;
         String secret = null;
@@ -274,7 +274,7 @@ public class SignedInActivity extends AppCompatActivity {
             ((TextView) findViewById(R.id.idp_secret)).setText(secret);
         }
     }
-
+*/
     @MainThread
     private void showSnackbar(@StringRes int errorMessageRes) {
         Snackbar.make(mRootView, errorMessageRes, Snackbar.LENGTH_LONG)
