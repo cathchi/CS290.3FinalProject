@@ -17,9 +17,11 @@ package com.firebase.uidemo.auth;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -133,8 +135,13 @@ public class SignedInActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String rawString = dataSnapshot.getValue(String.class);
 //                Log.d("SignedInActivity", rawString);
+                SharedPreferences mPrefs = PreferenceManager.getDefaultSharedPreferences(SignedInActivity.this);
+                //SharedPreferences.Editor prefsEditor = mPrefs.edit();
+                int rotation = mPrefs.getInt(CameraPreview.ROTATION, 0);
                 Glide.with(SignedInActivity.this)
                         .load(rawString)
+                        .asBitmap()
+                        .transform(new RotateImage(getApplicationContext(), rotation, "welcome"))
                         .placeholder(R.drawable.firebase_auth_120dp)
                         .into(mStartImage);
 
