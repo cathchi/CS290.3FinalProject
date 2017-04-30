@@ -35,7 +35,7 @@ import java.util.HashMap;
 
 public class ToDoListActivity extends AppCompatActivity {
     private HashMap<String, Task> tasks = new HashMap<String, Task>();
-    private String childname, childid;
+    private String childname, childid, users;
     private TaskAdapter adapter;
     private ChildEventListener mChildListener;
     private DatabaseReference myRef;
@@ -48,6 +48,7 @@ public class ToDoListActivity extends AppCompatActivity {
         Bundle b = getIntent().getExtras();
         childname = b.getString("childname");
         childid = b.getString("childid");
+        users = b.getString("users");
 
         setTitle(childname);
         // Get ListView object from xml
@@ -107,6 +108,12 @@ public class ToDoListActivity extends AppCompatActivity {
         };
 
         myRef.addChildEventListener(mChildListener);
+
+        final TextView shared = (TextView) findViewById(R.id.sharedtext);
+        if(users.contains(","))
+            shared.setText("This list is shared by" +users);
+        else
+            shared.setText("");
 
         // Add items via the Button and EditText at the bottom of the window.
         final EditText text = (EditText) findViewById(R.id.todoText);
