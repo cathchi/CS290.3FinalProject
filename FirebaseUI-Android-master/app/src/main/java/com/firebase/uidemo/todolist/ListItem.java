@@ -33,8 +33,12 @@ public class ListItem {
         String userString = "";
         for(String user: users)
             userString = userString + " " + user + ",";
-        userString = userString.substring(0, userString.length() - 1);
-        return userString;
+        if(userString.length()==0)
+            return userString;
+        else {
+            userString = userString.substring(0, userString.length() - 1);
+            return userString;
+        }
     }
 
     public String getMyID(){
