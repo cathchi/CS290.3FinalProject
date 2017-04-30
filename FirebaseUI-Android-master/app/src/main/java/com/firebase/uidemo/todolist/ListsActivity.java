@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -102,12 +101,13 @@ public class ListsActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         // Create a new Adapter
-        final ListAdapter adapter = new ListAdapter(this, R.layout.todolist_item, R.id.text1);
+        final ListAdapter adapter = new ListAdapter(this, R.layout.list_item, R.id.listnametext);
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
         //listView.setOnItemClickListener(this);
         for(ListItem listitem: listitems){
+
             adapter.add(listitem);
         }
 

@@ -31,8 +31,8 @@ public class ListAdapter extends ArrayAdapter<ListItem> {
             LayoutInflater inflater = LayoutInflater.from(context);
             view= inflater.inflate(listslayout, parent, false);
         }
-        TextView ListTitle = (TextView) view.findViewById(R.id.text1);
-        TextView ListUsers = (TextView) view.findViewById(R.id.text2);
+        TextView ListTitle = (TextView) view.findViewById(R.id.listnametext);
+        TextView ListUsers = (TextView) view.findViewById(R.id.sharedbytext);
 
         final ListItem list = getItem(position);
 
