@@ -73,17 +73,20 @@ public class ListsActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child(DATABASE_REF_USERS).child(mUid).child(DATABASE_REF_TODOLIST ).getValue();
+                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("users").child(mUid).child("todolists").getValue();
                 if(td != null) {
                     Set<String> ids = td.keySet();
                     for(String id : ids) {
-                        DataSnapshot list = dataSnapshot.child(DATABASE_REF_LIST).child(id);
-                        String title = list.child(DATABASE_REF_TITLE ).getValue().toString();
-                        ArrayList<String> Users = new ArrayList<>();
-                        for(DataSnapshot user: list.child(DATABASE_REF_USERS).getChildren()){
+                        DataSnapshot list = dataSnapshot.child("lists").child(id);
+                        String title = list.child("title").getValue().toString();
+                        ArrayList<String> Users = new ArrayList<String>();
+                        for(DataSnapshot user: list.child("users").getChildren()){
                             String userID = user.getValue().toString();
-                            String name = dataSnapshot.child(DATABASE_REF_USERS).child(userID).child(DATABASE_REF_NAME).getValue().toString();
-                            Users.add(name);
+                            Object nameobj = dataSnapshot.child("users").child(userID).child("name").getValue();
+                            if(nameobj != null) {
+                                String name = nameobj.toString();
+                                Users.add(name);
+                            }
                         }
                         ListItem myList= new ListItem(title, Users, id);
                         mListItems.add(myList);
