@@ -44,7 +44,7 @@ public class SignInActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         if(mAuth.getCurrentUser() != null){
             Log.d(TAG, "Going to ChooserActivity");
-            startActivity(new Intent(this, ChooserActivity.class));
+            startActivity(new Intent(this, SignedInActivity.class));
             finish();
             return;
         }

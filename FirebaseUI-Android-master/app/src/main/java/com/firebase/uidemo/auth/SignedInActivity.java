@@ -39,6 +39,7 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.IdpResponse;
 import com.firebase.uidemo.R;
 import com.firebase.uidemo.chat.ChatListActivity;
+import com.firebase.uidemo.todolist.ListsActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -290,11 +291,11 @@ public class SignedInActivity extends AppCompatActivity {
     public void goToChat(){
         Intent mIntent = new Intent(getApplicationContext(), ChatListActivity.class);
         startActivity(mIntent);
-        finish();
     }
 
-    @OnClick(R.id.to_home)
-    public void goToHome(){
-        finish();
+    @OnClick(R.id.to_lists)
+    public void goToLists(){
+        Intent mIntent = new Intent(getApplicationContext(), ListsActivity.class);
+        startActivity(mIntent);
     }
 }
