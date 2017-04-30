@@ -219,14 +219,14 @@ public class ChatActivity extends AppCompatActivity
      *  if there is existing list, opens that list
      *  if no existing list, opens an alert dialog box to name and create a shared list
      */
-    public void listSearchFinished(String id, String name){
+    public void listSearchFinished(String id, String name, String myName){
         Log.d(TAG, "finished " + id + " ");
         if(id == null) {
             Log.d(TAG, "building alert dialog");
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
             alertDialogBuilder.setTitle(NEW_LIST);
             alertDialogBuilder.setMessage(NAME_LIST);
-
+            final String mName = myName;
             final EditText et = new EditText(this.getApplicationContext());
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -253,7 +253,7 @@ public class ChatActivity extends AppCompatActivity
                     if(!text.equals("")) {
                         NewListCreater create = new NewListCreater(text);
                         String listId = create.addSharedToFirebase(mReceiverUID);
-                        handleList(listId, text);
+                        handleList(listId, text, mName);
                         alertDialog.dismiss();
                     }
                 }
@@ -263,7 +263,7 @@ public class ChatActivity extends AppCompatActivity
             if(alertDialog != null) {
                 alertDialog.dismiss();
             }
-            handleList(id, name);
+            handleList(id, name, myName);
 
         }
 
@@ -274,11 +274,11 @@ public class ChatActivity extends AppCompatActivity
      * @param id is the list id
      * @param text is the list title
      */
-    public void handleList(String id, String text) {
+    public void handleList(String id, String text, String myName) {
         Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
         i.putExtra(CHILD_ID, id);
         i.putExtra(CHILD_NAME, text);
-        i.putExtra(USER, "");
+        i.putExtra(USER, " " + mReceiverName + ", " + myName);
         startActivity(i);
     }
 
@@ -740,13 +740,14 @@ public class ChatActivity extends AppCompatActivity
      */
     private class SharedListFinder {
         private static final String TAG = "SharedListFinder";
-        private String mListID, mListTitle;
+        private String mListID, mListTitle, mName;
 
         protected void findExistingLists() {
             Log.d(TAG, "checking existing lists");
             mRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    mName = dataSnapshot.child(DATABASE_REF_USERS).child(mUID).child("name").getValue().toString();
                     Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child(DATABASE_REF_USERS).child(mUID)
                             .child(DATABASE_REF_TODOLISTS).getValue();
                     if(td != null) {
@@ -766,16 +767,16 @@ public class ChatActivity extends AppCompatActivity
                                     mListID = id;
                                     mListTitle = dataSnapshot.child(DATABASE_REF_LISTS).child(id)
                                             .child(DATABASE_REF_TITLE).getValue().toString();
-                                    listSearchFinished(mListID, mListTitle);
+                                    listSearchFinished(mListID, mListTitle, mName);
                                     break;
                                 }
                             }
-                            if (count == ids.size()){listSearchFinished(null, null);}
+                            if (count == ids.size()){listSearchFinished(null, null, mName);}
                         }
 
                     }
                     else{
-                        listSearchFinished(null, null);
+                        listSearchFinished(null, null, mName);
                     }
                 }
 
