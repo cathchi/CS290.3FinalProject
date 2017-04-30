@@ -39,6 +39,9 @@ import java.util.HashMap;
  */
 
 public class ToDoListActivity extends AppCompatActivity {
+    private static final String TAG = "ToDoListActivity";
+
+
     private HashMap<String, Task> tasks = new HashMap<String, Task>();
     private String childname, childid, users;
     private TaskAdapter adapter;
@@ -102,14 +105,14 @@ public class ToDoListActivity extends AppCompatActivity {
 
             // The following functions are also required in ChildEventListener implementations.
             public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName){
-                Log.d("onchildchanged","prevchild: " + previousChildName);
+                Log.d(TAG,"prevchild: " + previousChildName);
             }
             public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName){}
 
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
-                Log.w("TAG:", "Failed to read value.", error.toException());
+                Log.w(TAG, "Failed to read value.", error.toException());
             }
         };
 
@@ -135,7 +138,7 @@ public class ToDoListActivity extends AppCompatActivity {
 
                 // Set the child's data to the value passed in from the text box.
                 childRef.child("task").setValue(text.getText().toString());
-                Log.d("TASKVALUE", text.getText().toString());
+                Log.d(TAG, text.getText().toString());
                 childRef.child("notes").setValue("");
                 childRef.child("assign").setValue("");
                 childRef.child("location").child("place").setValue("");
@@ -164,21 +167,27 @@ public class ToDoListActivity extends AppCompatActivity {
                 View dView = inflater.inflate(R.layout.task_details_dialog, null);
                 adb.setView(dView);
                 //set information in dialog
+                String titleText = String.format("Task: %s", ((Task)listView.getItemAtPosition(position)).getName());
+                final String notesText = "Notes: ";
+                final String assignedText = "Assigned to: ";
+                final String locationText = "Location: ";
+
                 final TextView titleSection = (TextView)  dView.findViewById(R.id.taskTitle);
-                titleSection.setText("Task: "+ ((Task)listView.getItemAtPosition(position)).getName());
+
+                titleSection.setText(titleText);
                 final TextView notesSection = (TextView) dView.findViewById(R.id.notes);
-                notesSection.setText("Notes:");
+
+                notesSection.setText(notesText);
                 final TextView assignSection = (TextView) dView.findViewById(R.id.assign);
-                assignSection.setText("Assigned to: ");
+                assignSection.setText(assignedText);
                 final TextView locationSection = (TextView) dView.findViewById(R.id.location);
-                locationSection.setText("Location: ");
-                final int posIndex = position;
+                locationSection.setText(locationText);
                 //allow user to navigate to tak edit ativity
                 adb.setPositiveButton("Edit", new DialogInterface.OnClickListener(){
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         Intent i = new Intent(ToDoListActivity.this, TaskEditActivity.class);
-                        String tid = adapter.getItem(posIndex).getTaskid();
+                        String tid = adapter.getItem(position).getTaskid();
                         //put necessary information in bundle for database access
                         i.putExtra("taskID", tid);
                         i.putExtra("toDoListID", childid);
@@ -189,35 +198,38 @@ public class ToDoListActivity extends AppCompatActivity {
 
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String tid = adapter.getItem(posIndex).getTaskid();
+                        String tid = adapter.getItem(position).getTaskid();
                         adapter.remove(tasks.get(tid));
                         myRef.child(tid).removeValue();
-                        Log.d("DELETE", "removeID: " + tid);
+                        Log.d(TAG, "removeID: " + tid);
                     }
                 });
                 adb.setNegativeButton("OK", null);
                 adb.show();
 
                 //check if data has changed and update information in dialog
-                Query myQuery = myRef.child(adapter.getItem(posIndex).getTaskid());
+                Query myQuery = myRef.child(adapter.getItem(position).getTaskid());
 
                 myQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.hasChildren()) {
                             DataSnapshot notesRef = dataSnapshot.child("notes");
-                            if(notesRef.getValue() != null)
-                                notesSection.setText("Notes: " + notesRef.getValue().toString());
+                            if(notesRef.getValue() != null) {
+                                String noteFill = String.format("%s%s", notesText, notesRef.getValue().toString());
+                                notesSection.setText(noteFill);}
                             else
-                                notesSection.setText("Notes: ");
-                            if(dataSnapshot.child("assign").getValue() != null)
-                                assignSection.setText("Assigned to: " + dataSnapshot.child("assign").getValue().toString());
+                                notesSection.setText(notesText);
+                            if(dataSnapshot.child("assign").getValue() != null){
+                                String assignFill = String.format("%s%s", assignedText, dataSnapshot.child("assign").getValue().toString());
+                                assignSection.setText(assignFill);}
                             else
-                                assignSection.setText("Assigned to: ");
-                            if(dataSnapshot.child("location").getValue() != null)
-                                locationSection.setText("Location: " + dataSnapshot.child("location").child("place").getValue().toString());
+                                assignSection.setText(assignedText);
+                            if(dataSnapshot.child("location").getValue() != null) {
+                                String locationFill = String.format("%s%s", locationText, dataSnapshot.child("location").child("place").getValue().toString());
+                                locationSection.setText(locationFill);}
                             else
-                                locationSection.setText("Location: ");
+                                locationSection.setText(locationText);
                         }
                     }
 
@@ -241,13 +253,13 @@ public class ToDoListActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for(DataSnapshot taskid : dataSnapshot.getChildren()) {
-                    Log.d("OLDTASK", taskid.getKey().toString());
+                    Log.d(TAG, taskid.getKey());
                     Task oldTask = tasks.get(taskid.getKey());
                     int pos = adapter.getPosition(oldTask);
                     if(oldTask != null) {
-                        String taskname = taskid.child("task").getValue(String.class);
-                        String tasknotes = taskid.child("notes").getValue(String.class);
-                        boolean needsUpdate = oldTask.checkUpdates(taskname, tasknotes);
+                        String taskName = taskid.child("task").getValue(String.class);
+                        String taskNotes = taskid.child("notes").getValue(String.class);
+                        boolean needsUpdate = oldTask.checkUpdates(taskName, taskNotes);
                         if(needsUpdate) {
                             oldTask.setTaskTitle(taskid.child("task").getValue(String.class));
                             oldTask.setNotes(taskid.child("notes").getValue(String.class));
@@ -263,14 +275,6 @@ public class ToDoListActivity extends AppCompatActivity {
 
             }
         });
-
-
-
-        Log.d("UPDATELIST", "list count = " + adapter.getCount());
-        for (int i = 0; i < adapter.getCount(); i++) {
-            Task t = adapter.getItem(i);
-
-        }
     }
 
     @Override
