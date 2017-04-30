@@ -7,10 +7,10 @@
         android:id="@+id/taskEditString"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:text="Edit Task"
         android:textAlignment="center"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:padding="10dp"/>
 
     <TextView
         android:id="@+id/taskString"
@@ -18,7 +18,8 @@
         android:layout_height="wrap_content"
         android:text="Task:"
         android:textSize="24sp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
+        android:padding="10dp"
         android:background="@color/tw__light_gray"/>
 
     <EditText
@@ -26,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Type Task Here"
+        android:padding="10dp"
         android:textSize="24sp" />
 
     <TextView
@@ -33,12 +35,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Notes:"
+        android:padding="10dp"
         android:textSize="18sp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="@color/tw__light_gray"/>
 
     <EditText
         android:id="@+id/notesEdit"
+        android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Put details of the task here" />
@@ -49,13 +53,20 @@
         android:layout_height="wrap_content"
         android:text="Assigned To:"
         android:textSize="18sp"
-        android:layout_marginTop="20dp"
+        android:padding="10dp"
+        android:layout_marginTop="10dp"
         android:background="@color/tw__light_gray"/>
+
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <EditText
         android:id="@+id/assignEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         android:hint="List who is assigned to the task" />
 
     <TextView
@@ -63,8 +74,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Location:"
+        android:padding="10dp"
         android:textSize="18sp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:background="@color/tw__light_gray"/>
 
     <RelativeLayout
@@ -102,7 +114,7 @@
         android:id="@+id/doneButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="10dp"
         android:layout_marginBottom="3dp"
         android:text="Done" />
 

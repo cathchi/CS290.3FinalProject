@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -27,10 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -58,7 +54,7 @@ public class ToDoListActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         // Create a new Adapter
-        adapter = new TaskAdapter(this, R.layout.todolist_item, R.id.text1);
+        adapter = new TaskAdapter(this, R.layout.task_item, R.id.text1);
 
         // Assign adapter to ListView
         listView.setAdapter(adapter);
