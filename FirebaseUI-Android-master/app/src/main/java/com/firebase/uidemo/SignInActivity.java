@@ -123,7 +123,7 @@ public class SignInActivity extends AppCompatActivity {
         // Successfully signed in
         if (resultCode == ResultCodes.OK) {
             Log.d(TAG, "Successful sign in");
-            startActivity(new Intent(this, ChooserActivity.class));
+            startActivity(new Intent(this, SignedInActivity.class));
             finish();
             return;
         } else {

@@ -53,7 +53,7 @@
             android:label="@string/name_auth_ui"/>
         <activity
             android:name=".auth.SignedInActivity"
-            android:label="@string/name_auth_ui"/>
+            android:label="TaDa!"/>
 
         <!-- Storage UI demo-->
         <activity
