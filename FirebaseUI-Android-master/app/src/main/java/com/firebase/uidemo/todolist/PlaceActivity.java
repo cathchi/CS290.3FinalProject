@@ -46,6 +46,11 @@ import java.util.concurrent.TimeUnit;
 public class PlaceActivity extends FragmentActivity implements OnConnectionFailedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleMap.OnMarkerClickListener {
     private static final String TAG = "PlaceActivity";
     private static final int FINE_LOCATION_PERMISSION = 1600;
+    private static final String LAT = "lat";
+    private static final String LONG = "long";
+    private static final String PLACE = "place";
+    private static final String CUSTOM_PLACE = "Custom Place";
+    private static final String CURRENT_POSITION = "Current Position";
 
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap mGoogleMap;
@@ -53,7 +58,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     private Place mPlace;
     private String mPlaceName, mChoice;
     private Marker mPlaceMarker;
-    private Button chooserButton;
+    private Button mChooserButton;
     private LatLng mLoc;
 
     @Override
@@ -68,9 +73,9 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     // If the task already contained a location, this location is plotted on the map
     private boolean placeExistingLocation() {
         Intent i = getIntent();
-        String latitude = i.getStringExtra("lat");
-        String longitude = i.getStringExtra("long");
-        String place = i.getStringExtra("place");
+        String latitude = i.getStringExtra(LAT);
+        String longitude = i.getStringExtra(LONG);
+        String place = i.getStringExtra(PLACE);
         if (latitude != null && longitude != null && !latitude.equals("") && !longitude.equals("")) {
             LatLng latlong = new LatLng(Double.parseDouble(latitude), Double.parseDouble(longitude));
             mPlaceMarker = mGoogleMap.addMarker(new MarkerOptions().position(latlong).title(place));
@@ -87,31 +92,31 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     // When the user presses this button, this activity finishes and passes the
     // new location data to TaskEditActivity
     private void setUpChooserButton() {
-        chooserButton = (Button) findViewById(R.id.placeChooserButton);
+        mChooserButton = (Button) findViewById(R.id.placeChooserButton);
         if (mPlaceName == null) {
             String buttonText = "Choose No Location";
-            chooserButton.setText(buttonText);
+            mChooserButton.setText(buttonText);
         } else {
             fillChooserButton(mPlaceName);
         }
 
-        chooserButton.setOnClickListener(new View.OnClickListener() {
+        mChooserButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent returnIntent = new Intent();
-                if(mChoice != null && mChoice.equals("Current Position")) {
+                if(mChoice != null && mChoice.equals(CURRENT_POSITION)) {
                     Log.i(TAG, "current position chosen");
-                    returnIntent.putExtra("place", "Custom Place");
+                    returnIntent.putExtra(PLACE, CUSTOM_PLACE);
                     Log.d(TAG, " " + mLoc.latitude + " " + mLoc.longitude);
-                    returnIntent.putExtra("lat", Double.toString(mLoc.latitude));
-                    returnIntent.putExtra("long", Double.toString(mLoc.longitude));
+                    returnIntent.putExtra(LAT, Double.toString(mLoc.latitude));
+                    returnIntent.putExtra(LONG, Double.toString(mLoc.longitude));
                     setResult(RESULT_OK, returnIntent);
                 }
                 else if (mPlace != null) {
-                    returnIntent.putExtra("place", (String) mPlace.getName());
+                    returnIntent.putExtra(PLACE, (String) mPlace.getName());
                     LatLng ll = mPlace.getLatLng();
-                    returnIntent.putExtra("lat", Double.toString(ll.latitude));
-                    returnIntent.putExtra("long", Double.toString(ll.longitude));
+                    returnIntent.putExtra(LAT, Double.toString(ll.latitude));
+                    returnIntent.putExtra(LONG, Double.toString(ll.longitude));
                     setResult(RESULT_OK, returnIntent);
                 }
                 else {
@@ -124,7 +129,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
 
     private void fillChooserButton(String loc) {
         String text = String.format("Set %s as your task location", loc);
-        chooserButton.setText(text);
+        mChooserButton.setText(text);
         Log.d(TAG, loc);
         mChoice = loc;
 
@@ -239,7 +244,7 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
             mLoc = new LatLng(curLat, curLong);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(mLoc);
-            markerOptions.title("Current Position");
+            markerOptions.title(CURRENT_POSITION);
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
             mGoogleMap.addMarker(markerOptions);
             if (mPlaceMarker == null) {
