@@ -126,8 +126,7 @@ public class ChatActivity extends AppCompatActivity
     private MediaPlayer mMediaPlayer;
 
     /**
-     *
-     * @param savedInstanceState
+     * Initializes view and database references
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -306,6 +305,9 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Updated when user is originally not signed in and then proceeded to sign in
+     */
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
         updateUI();
@@ -322,6 +324,9 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Signs user in
+     */
     private void signInAnonymously() {
         Toast.makeText(this, "Signing in...", Toast.LENGTH_SHORT).show();
         mAuth.signInAnonymously()
@@ -334,6 +339,10 @@ public class ChatActivity extends AppCompatActivity
                 .addOnCompleteListener(new SignInResultNotifier(this));
     }
 
+    /**
+     *
+     * @return boolean indicating whether user is signed in or not
+     */
     private boolean isSignedIn() {
         return mAuth.getCurrentUser() != null;
     }
@@ -401,7 +410,7 @@ public class ChatActivity extends AppCompatActivity
     }
 
     /**
-     *
+     * Firebase Database listener for new messages
      */
     private void updateMessage() {
         mChatRef.addChildEventListener(new ChildEventListener() {
@@ -448,6 +457,9 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Notifies user if they successfully granted permission for audio and external storage or not
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -470,23 +482,39 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * @return boolean to indicate if user has already granted permission for audio and external storage
+     */
     private boolean checkPermission() {
         int externalStorage = ContextCompat.checkSelfPermission(getApplicationContext(), WRITE_EXTERNAL_STORAGE);
         int audio = ContextCompat.checkSelfPermission(getApplicationContext(), RECORD_AUDIO);
         return externalStorage == PackageManager.PERMISSION_GRANTED && audio == PackageManager.PERMISSION_GRANTED;
     }
 
+    /**
+     * Asks user to grant permission to record audio and store to database
+     */
     private void requestPermission() {
         ActivityCompat.requestPermissions(ChatActivity.this, new
                 String[] { WRITE_EXTERNAL_STORAGE, RECORD_AUDIO }, REQUEST_RECORD_AUDIO_PERMISSION);
     }
 
+    /**
+     * Checks for the existence of the file so no need to download the same file
+     * @param s is the extension
+     * @return boolean to indicate if file exists
+     */
     private boolean fileExists(String s) {
-        File file = new File(s);
+        File file = new File(getExternalCacheDir().getAbsolutePath() + "/" +s);
         if (file == null || !file.exists()) return false;
         return true;
     }
 
+    /**
+     * If audio and external storage permission is allowed, the method is called to record (first click)
+     * and and stop recording (second click).
+     * If permission is denied, a dialogue box to request permission will pop up.
+     */
     public void record(View view) {
         if (checkPermission()) {
             if (startedRecording) {
@@ -512,6 +540,9 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Starts to record audio message
+     */
     private void startRecording() {
         Toast.makeText(this, "Recording Started", Toast.LENGTH_SHORT).show();
 
@@ -534,6 +565,9 @@ public class ChatActivity extends AppCompatActivity
 
     }
 
+    /**
+     * Stops recording of audio message
+     */
     private void stopRecording() {
         try {
             Toast.makeText(this, "Recording Ended", Toast.LENGTH_SHORT).show();
@@ -548,6 +582,9 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Stores sent message on Firebase
+     */
     private void sendMessage() {
         String name = mAuth.getCurrentUser().getDisplayName();
         mChat = new Chat(name, mReceiverName, mMessage, mUID, mReceiverUID, mDate, mType);
@@ -569,6 +606,9 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Stores audio messages of the sender on Firebase
+     */
     private void storeStorage() {
         Uri file = Uri.fromFile(new File(mFileName));
         mUserStorageRef = mStorageRef.child(mUID).child(file.getLastPathSegment());
@@ -590,6 +630,11 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * Called when an audio message is clicked
+     * @param position indicates which specific chat is clicked on to play recording
+     */
+
     @Override
     public void recyclerViewItemClicked(int position) {
         if (startPlaying && mMediaPlayer != null) {
@@ -607,6 +652,10 @@ public class ChatActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Only called when the recording has never been downloaded upon first load of messages
+     * @param s is the name of the unique file extension
+     */
     private void downloadRecording(String s) {
         mRecipientStorageRef = mStorageRef.child(mReceiverUID).child(s);
         File localFile;
@@ -625,10 +674,14 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * plays recording of audio at specific chat
+     * @param position indicates which chat audio to play
+     */
+
     private void playRecording(int position) {
         mMediaPlayer = new MediaPlayer();
         mFileName = getExternalCacheDir().getAbsolutePath() + "/" +
-                //extension + "/" +
                 mChats.get(position).getMessage().substring(FILE_PATH_START);
         try {
             mMediaPlayer.setDataSource(mFileName);
@@ -649,6 +702,9 @@ public class ChatActivity extends AppCompatActivity
         });
     }
 
+    /**
+     * sends message
+     */
     public void send(View view) {
         mMessage = mMessageEdit.getText().toString();
         if (!mMessage.equals("")) {
