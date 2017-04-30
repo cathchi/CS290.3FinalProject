@@ -57,11 +57,6 @@
         android:layout_marginTop="10dp"
         android:background="@color/tw__light_gray"/>
 
-    <Spinner
-        android:id="@+id/spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <EditText
         android:id="@+id/assignEdit"
         android:layout_width="match_parent"

@@ -114,7 +114,9 @@ public class ListsActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                startListActivity(adapter.getItem(position).getMyID(), adapter.getItem(position).getListTitle());
+                startListActivity(adapter.getItem(position).getMyID(),
+                        adapter.getItem(position).getListTitle(),
+                        adapter.getItem(position).getUserString());
             }
         });
     }
@@ -124,10 +126,11 @@ public class ListsActivity extends AppCompatActivity {
     }*/
 
     // starts new activity
-    private void startListActivity(String id, String name) {
+    private void startListActivity(String id, String name, String users) {
         Intent i = new Intent(ListsActivity.this, ToDoListActivity.class);
         i.putExtra("childid", id);
         i.putExtra("childname", name);
+        i.putExtra("users", users);
         startActivity(i);
     }
 
@@ -165,7 +168,7 @@ public class ListsActivity extends AppCompatActivity {
                 if(!text.equals("")) {
                     NewListCreater create = new NewListCreater(text);
                     String newid = create.addToFirebase();
-                    startListActivity(newid, text);
+                    startListActivity(newid, text, "");
                     //listids.add(newid);
                     listitems.add(create.getListObject());
                     alertDialog.dismiss();
