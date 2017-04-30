@@ -89,7 +89,8 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
     private void setUpChooserButton() {
         chooserButton = (Button) findViewById(R.id.placeChooserButton);
         if (mPlaceName == null) {
-            chooserButton.setText("Choose No Location");
+            String buttonText = "Choose No Location";
+            chooserButton.setText(buttonText);
         } else {
             fillChooserButton(mPlaceName);
         }
@@ -226,7 +227,6 @@ public class PlaceActivity extends FragmentActivity implements OnConnectionFaile
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getLocation();
                 }
-                return;
             }
         }
     }

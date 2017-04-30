@@ -22,7 +22,7 @@ public class NewListCreater {
 
     private String title, mUid;
     private FirebaseDatabase database;
-    private DatabaseReference listRef, userRef, otherRef;
+    private DatabaseReference listRef, userRef;
     private List<String> users = new ArrayList<>();
     public NewListCreater(String listname) {
         title = listname;
@@ -48,7 +48,7 @@ public class NewListCreater {
     public String addSharedToFirebase(String otherUId) {
         users.add(otherUId);
         addToFirebase();
-        otherRef = database.getReference()
+        DatabaseReference otherRef = database.getReference()
                 .child("users").child(otherUId).child("todolists");
         otherRef.child(listRef.getKey()).child("title").setValue(title);
 
@@ -59,7 +59,7 @@ public class NewListCreater {
     }
 
     public ListItem getListObject(){
-        final ArrayList<String> userNames = new ArrayList<String>();
+        final ArrayList<String> userNames = new ArrayList<>();
         for(String user: users){
             DatabaseReference myuser = database.getReference().child("users").child(user).child("name");
             myuser.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -74,8 +74,7 @@ public class NewListCreater {
                 }
             });
         }
-        ListItem myList = new ListItem(title, userNames, listRef.getKey());
-        return myList;
+        return new ListItem(title, userNames, listRef.getKey());
     }
 
 }
