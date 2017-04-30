@@ -38,7 +38,16 @@ import java.util.Set;
  */
 
 public class ListsActivity extends AppCompatActivity {
-    private List<ListItem> listitems = new ArrayList<>();
+    private static final String TAG = "ListsActivity";
+    private static final String DATABASE_REF_USERS = "users";
+    private static final String DATABASE_REF_TODOLIST = "todolists";
+    private static final String DATABASE_REF_LIST = "lists";
+    private static final String DATABASE_REF_TITLE = "title";
+    private static final String DATABASE_REF_NAME = "name";
+    private static final String INTENT_REF_ID = "childid";
+    private static final String INTENT_REF_NAME = "childname";
+
+    private List<ListItem> mListItems = new ArrayList<>();
     private String mUid;
 
     @Override
@@ -52,10 +61,10 @@ public class ListsActivity extends AppCompatActivity {
         setTitle("Your To-Do Lists");
     }
 
-    /*
-    gets all the to do lists from Firebase
-    listname is set to the list retreived
-     */
+    /**
+     * gets all the to do lists from Firebase
+     * listname is set to the list retreived
+     * */
     public void addListsfromFB() {
         final FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -64,31 +73,31 @@ public class ListsActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child("users").child(mUid).child("todolists").getValue();
+                Map<String, Object> td = (HashMap<String,Object>)dataSnapshot.child(DATABASE_REF_USERS).child(mUid).child(DATABASE_REF_TODOLIST ).getValue();
                 if(td != null) {
                     Set<String> ids = td.keySet();
                     for(String id : ids) {
-                        DataSnapshot list = dataSnapshot.child("lists").child(id);
-                        String title = list.child("title").getValue().toString();
+                        DataSnapshot list = dataSnapshot.child(DATABASE_REF_LIST).child(id);
+                        String title = list.child(DATABASE_REF_TITLE ).getValue().toString();
                         ArrayList<String> Users = new ArrayList<>();
-                        for(DataSnapshot user: list.child("users").getChildren()){
+                        for(DataSnapshot user: list.child(DATABASE_REF_USERS).getChildren()){
                             String userID = user.getValue().toString();
-                            String name = dataSnapshot.child("users").child(userID).child("name").getValue().toString();
+                            String name = dataSnapshot.child(DATABASE_REF_USERS).child(userID).child(DATABASE_REF_NAME).getValue().toString();
                             Users.add(name);
                         }
                         ListItem myList= new ListItem(title, Users, id);
-                        listitems.add(myList);
+                        mListItems.add(myList);
                     }
                 }
                 else {
-                    listitems = new ArrayList<>();
+                    mListItems = new ArrayList<>();
                 }
                 fillListView();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.d("Read failed", "failed");
+                Log.d(TAG, "failed");
             }
         });
     }
@@ -103,7 +112,7 @@ public class ListsActivity extends AppCompatActivity {
         // Assign adapter to ListView
         listView.setAdapter(adapter);
         //listView.setOnItemClickListener(this);
-        for(ListItem listitem: listitems){
+        for(ListItem listitem: mListItems){
 
             adapter.add(listitem);
         }
@@ -118,22 +127,20 @@ public class ListsActivity extends AppCompatActivity {
         });
     }
 
-    /*public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        startListActivity(listids.get(position), listnames.get(position));
-    }*/
-
     // starts new activity
     private void startListActivity(String id, String name, String users) {
         Intent i = new Intent(ListsActivity.this, ToDoListActivity.class);
-        i.putExtra("childid", id);
-        i.putExtra("childname", name);
-        i.putExtra("users", users);
+        i.putExtra(INTENT_REF_ID, id);
+        i.putExtra(INTENT_REF_NAME, name);
+        i.putExtra(DATABASE_REF_USERS, users);
         startActivity(i);
     }
 
-    // handles when user clicks "make new list" button to create a new to-do list
-    // uses AlertDialog and EditText to allow user to enter a name for the to-do list
-    // when user clicks "ok" the ToDoListActivity starts to display the new list.
+    /**
+     * handles when user clicks "make new list" button to create a new to-do list
+     * uses AlertDialog and EditText to allow user to enter a name for the to-do list
+     * when user clicks "ok" the ToDoListActivity starts to display the new list.
+     */
     public void onClickNewList(View v) {
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this, R.style.MyAlertDialogStyle);
         alertDialogBuilder.setTitle("New List");
@@ -144,6 +151,7 @@ public class ListsActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT);
         et.setLayoutParams(lp);
+
         // set prompts.xml to alertdialog builder
         alertDialogBuilder.setView(et);
         alertDialogBuilder.setPositiveButton("OK",
@@ -151,6 +159,7 @@ public class ListsActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 });
+
         // create alert dialog
         final AlertDialog alertDialog = alertDialogBuilder.create();
 
@@ -161,13 +170,12 @@ public class ListsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String text = et.getText().toString();
-                Log.d("Got text", text);
+                Log.d(TAG, text);
                 if(!text.equals("")) {
                     NewListCreater create = new NewListCreater(text);
                     String newid = create.addToFirebase();
                     startListActivity(newid, text, "");
-                    //listids.add(newid);
-                    listitems.add(create.getListObject());
+                    mListItems.add(create.getListObject());
                     alertDialog.dismiss();
                 }
             }
@@ -210,7 +218,6 @@ public class ListsActivity extends AppCompatActivity {
     @Override
     public void onRestart() {
         super.onRestart();
-        //addListsfromFB();
         fillListView();
     }
 }
