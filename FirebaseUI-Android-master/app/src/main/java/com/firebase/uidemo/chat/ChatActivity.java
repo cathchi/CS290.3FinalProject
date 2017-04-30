@@ -14,7 +14,6 @@
 
 package com.firebase.uidemo.chat;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,8 +23,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.nfc.Tag;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -45,13 +42,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
 import com.firebase.uidemo.R;
+import com.firebase.uidemo.SignInActivity;
+import com.firebase.uidemo.auth.SignedInActivity;
 import com.firebase.uidemo.todolist.NewListCreater;
 import com.firebase.uidemo.todolist.ToDoListActivity;
 import com.firebase.uidemo.util.RecyclerViewClickListener;
 import com.firebase.uidemo.util.SignInResultNotifier;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -106,6 +108,7 @@ public class ChatActivity extends AppCompatActivity
     private String mReceiverUID;
     private String mReceiverName;
     private String mType;
+    private AlertDialog alertDialog;
 
     private FloatingActionButton audioButton;
     private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
@@ -186,9 +189,27 @@ public class ChatActivity extends AppCompatActivity
             case R.id.sharedList:
                 goToSharedList();
                 return true;
+            case R.id.return_home:
+                goHome();
+                return true;
+            case R.id.logout:
+                logout();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void logout() {
+        AuthUI.getInstance()
+                .signOut(this);
+        goHome();
+    }
+
+    public void goHome(){
+        Intent intent = new Intent(getApplicationContext(), SignedInActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     public void goToSharedList() {
@@ -222,7 +243,7 @@ public class ChatActivity extends AppCompatActivity
                         }
                     });
             // create alert dialog
-            final AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog = alertDialogBuilder.create();
 
             // show it
             alertDialog.show();
@@ -242,7 +263,11 @@ public class ChatActivity extends AppCompatActivity
             });
         }
         else {
+            if(alertDialog != null) {
+                alertDialog.dismiss();
+            }
             handleList(id, name);
+
         }
 
     }
@@ -745,6 +770,7 @@ public class ChatActivity extends AppCompatActivity
                                     mListTitle = dataSnapshot.child(DATABASE_REF_TODOLISTS).child(id)
                                             .child(DATABASE_REF_TITLE).getValue().toString();
                                     listSearchFinished(mListID, mListTitle);
+                                    break;
                                 }
                             }
                             if (count == ids.size()){listSearchFinished(null, null);}
