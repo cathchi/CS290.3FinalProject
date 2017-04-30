@@ -6,6 +6,7 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -38,7 +39,12 @@ import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.OnClick;
 
@@ -138,8 +144,25 @@ public class CameraActivity extends AppCompatActivity  {
                 }
         );
         //getOutputMediaFile(MEDIA_TYPE_IMAGE);
-        createDialog();
+
+        Handler mHandler = new Handler();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                createDialog();
+            }
+        }, 1000);
         Log.d("CameraActivity", "Finished taking picture");
+    }
+
+    private void beginDialogFlow(){
+        Timer task = new Timer();
+        task.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                createDialog();
+            }
+        }, 1000);
     }
 
     @Override
@@ -334,6 +357,13 @@ public class CameraActivity extends AppCompatActivity  {
                 mUser.child(mUid).child("image").setValue(mImage.toString());
             }
         });
-        //finish();
+        Handler mHandler = new Handler();
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                finish();
+            }
+        }, 5000);
+
     }
 }
