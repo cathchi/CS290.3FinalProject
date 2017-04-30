@@ -250,6 +250,7 @@ public class ChatActivity extends AppCompatActivity
         Intent i = new Intent(ChatActivity.this, ToDoListActivity.class);
         i.putExtra(CHILD_ID, id);
         i.putExtra(CHILD_NAME, text);
+        i.putExtra("users", "");
         startActivity(i);
     }
 
