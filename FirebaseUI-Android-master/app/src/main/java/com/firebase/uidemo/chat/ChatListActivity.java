@@ -128,7 +128,8 @@ public class ChatListActivity extends AppCompatActivity implements RecyclerViewC
     }
 
     /**
-     * Fetches new messages from Firebase Database to store into SQLite database
+     * Fetches all users who the user has had chats with from Firebase Database to store into SQLite database
+     * Showing those user names without duplicates
      */
     private void getDatabaseData () {
         mRef = FirebaseDatabase.getInstance().getReference();
