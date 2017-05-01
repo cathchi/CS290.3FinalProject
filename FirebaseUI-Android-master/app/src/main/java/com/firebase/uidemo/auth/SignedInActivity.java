@@ -219,8 +219,9 @@ public class SignedInActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    Intent goToCamera = new Intent(getApplicationContext(), CameraActivity.class);
-                    startActivity(goToCamera);
+                    if (!(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 2);
+                    }
 
                 } else {
 
@@ -230,6 +231,17 @@ public class SignedInActivity extends AppCompatActivity {
                 }
                 return;
             }
+
+            case 2:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Intent goToCamera = new Intent(getApplicationContext(), CameraActivity.class);
+                    startActivity(goToCamera);
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "Sorry, but you have denied camera permission.",
+                            Toast.LENGTH_LONG).show();
+                }
 
             // other 'case' lines to check for other
             // permissions this app might request
