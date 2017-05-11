@@ -54,7 +54,7 @@ public class TaskEditActivity extends Activity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String mUid = currentUser.getUid();
         //myRef= database.getReference()
-        //        .child("users").child(mUid).child("todolists").child(toDoListID).child("tasks").child(taskID);
+        //  /      .child("users").child(mUid).child("todolists").child(toDoListID).child("tasks").child(taskID);
 
         myRef= database.getReference()
                 .child("lists").child(toDoListID).child("tasks").child(taskID);
